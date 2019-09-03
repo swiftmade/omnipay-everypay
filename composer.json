@@ -1,0 +1,31 @@
+{
+  "name": "swiftmade/omnipay-everypay",
+  "description": "(Unofficial) payment gateway for Every Pay (Estonia)",
+  "type": "library",
+  "license": "MIT",
+  "authors": [
+    {
+      "name": "Swiftmade",
+      "email": "hello@swiftmade.co"
+    }
+  ],
+  "minimum-stability": "stable",
+  "require": {
+    "league/omnipay": "^3"
+  },
+  "require-dev": {
+    "phpunit/phpunit": "^6.0",
+    "php-vcr/php-vcr": "^1.4",
+    "omnipay/tests": "^3.1"
+  },
+  "autoload": {
+    "psr-4": {
+      "Swiftmade\\EveryPay\\": "src/"
+    }
+  },
+  "autoload-dev": {
+    "classmap": [
+      "tests/TestCase.php"
+    ]
+  }
+}
