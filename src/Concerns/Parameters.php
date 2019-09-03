@@ -10,6 +10,7 @@ trait Parameters
             'secret' => getenv('EVERY_PAY_API_SECRET'), // api_secret
             'accountId' => getenv('EVERY_PAY_ACCOUNT_ID'), // processing account
             'testMode' => true,
+            'locale' => 'et',
         ];
     }
 
@@ -41,5 +42,15 @@ trait Parameters
     public function setAccountId($accountId)
     {
         return $this->setParameter('accountId', $accountId);
+    }
+
+    public function getLocale()
+    {
+        return $this->getParameter('locale');
+    }
+
+    public function setLocale($locale)
+    {
+        return $this->setParameter('locale', $locale);
     }
 }

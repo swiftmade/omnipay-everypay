@@ -12,24 +12,23 @@ abstract class AbstractRequest extends BaseAbstractRequest
 {
     use Parameters;
 
-    protected $liveEndpoint = 'https://gw.every-pay.eu/';
-    protected $testEndpoint = 'https://gw-demo.every-pay.com/';
+    protected $liveEndpoint = 'https://pay.every-pay.eu/transactions/';
+    protected $testEndpoint = 'https://igw-demo.every-pay.com/transactions/';
 
     protected function getEndpoint()
     {
         return $this->getTestMode() ? $this->testEndpoint : $this->liveEndpoint;
     }
 
-    public function sendData($data)
-    {
-        $url = $this->getEndpoint() . '?' . http_build_query($data, '', '&');
-        $response = $this->httpClient->post($url);
-        $data = json_decode($response->getBody(), true);
-        return $this->createResponse($data);
-    }
-
     protected function getBaseData()
     {
+        return [
+            'api_username' => $this->getUsername(),
+            'account_id' => $this->getAccountId(),
+            'nonce' => uniqid(true),
+            'timestamp' => time(),
+            'user_ip' => '127.0.0.1',
+        ];
     }
 
     protected function createResponse($data)

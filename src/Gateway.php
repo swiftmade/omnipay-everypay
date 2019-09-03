@@ -2,7 +2,7 @@
 namespace Omnipay\EveryPay;
 
 use Omnipay\Common\AbstractGateway;
-use Omnipay\EveryPay\Messages\PurchaseRequest;
+use Omnipay\EveryPay\Messages\CardRequest;
 
 class Gateway extends AbstractGateway
 {
@@ -13,8 +13,8 @@ class Gateway extends AbstractGateway
         return 'Every Pay';
     }
 
-    public function purchase(array $parameters = [])
+    public function createCard(array $parameters = [])
     {
-        return $this->createRequest(PurchaseRequest::class, $parameters);
+        return $this->createRequest(CardRequest::class, $parameters);
     }
 }
