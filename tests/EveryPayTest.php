@@ -1,13 +1,20 @@
 <?php
 
+use Omnipay\Omnipay;
+use Omnipay\EveryPay\Gateway;
 use Omnipay\Tests\GatewayTestCase;
-use Swiftmade\EveryPay\EveryPayGateway;
 
 class EveryPayTest extends GatewayTestCase
 {
     public function setUp()
     {
         parent::setUp();
-        $this->gateway = new EveryPayGateway();
+        $this->gateway = new Gateway();
+    }
+
+    /** @test */
+    public function supports_one_off_payments()
+    {
+        Omnipay::create('EveryPay');
     }
 }

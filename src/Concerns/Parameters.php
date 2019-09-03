@@ -1,25 +1,14 @@
 <?php
-namespace Swiftmade\EveryPay;
+namespace Omnipay\EveryPay\Concerns;
 
-use Omnipay\Common\AbstractGateway;
-
-class EveryPayGateway extends AbstractGateway
+trait Parameters
 {
-    public function getName()
-    {
-        return 'Every Pay';
-    }
-
-    public function getShortName()
-    {
-        return 'everyPay';
-    }
-
     public function getDefaultParameters()
     {
         return [
-            'username' => '',
-            'secret' => '',
+            'username' => getenv('EVERY_PAY_API_USERNAME'),
+            'secret' => getenv('EVERY_PAY_API_SECRET'),
+            'testMode' => true,
         ];
     }
 
