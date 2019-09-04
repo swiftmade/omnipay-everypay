@@ -15,7 +15,7 @@ abstract class AbstractRequest extends BaseAbstractRequest
     protected $liveEndpoint = 'https://pay.every-pay.eu/transactions/';
     protected $testEndpoint = 'https://igw-demo.every-pay.com/transactions/';
 
-    protected function getEndpoint()
+    public function getEndpoint()
     {
         return $this->getTestMode() ? $this->testEndpoint : $this->liveEndpoint;
     }
@@ -28,11 +28,33 @@ abstract class AbstractRequest extends BaseAbstractRequest
             'nonce' => uniqid(true),
             'timestamp' => time(),
             'user_ip' => '127.0.0.1',
+            'customer_url' => $this->getCustomerUrl(),
+            'callback_url' => $this->getCallbackUrl(),
         ];
     }
 
     protected function createResponse($data)
     {
         return $this->response = new Response($this, $data);
+    }
+
+    public function setCustomerUrl($url)
+    {
+        return $this->setParameter('customerUrl', $url);
+    }
+
+    public function getCustomerUrl()
+    {
+        return $this->getParameter('customerUrl');
+    }
+
+    public function setCallbackUrl($url)
+    {
+        return $this->setParameter('callbackUrl', $url);
+    }
+
+    public function getCallbackUrl()
+    {
+        return $this->getParameter('callbackUrl');
     }
 }

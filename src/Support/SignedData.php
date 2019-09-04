@@ -41,9 +41,9 @@ class SignedData
         return $this;
     }
 
-    public function toHttpQuery()
+    public function toArray()
     {
-        return http_build_query($this->data);
+        return $this->data;
     }
 
     private function prepareData()
