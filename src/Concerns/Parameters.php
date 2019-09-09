@@ -53,4 +53,14 @@ trait Parameters
     {
         return $this->setParameter('locale', $locale);
     }
+
+    public function getClientIp()
+    {
+        return $this->getParameter('user_ip');
+    }
+
+    public function setClientIp($value)
+    {
+        return $this->setParameter('user_ip', $value);
+    }
 }
