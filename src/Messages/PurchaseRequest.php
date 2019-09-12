@@ -12,7 +12,6 @@ class PurchaseRequest extends AbstractRequest
         $data['amount'] = $this->getAmount();
         $data['order_reference'] = uniqid('', true);
 
-
         if ($this->getUseBackendApi()) {
             unset($data['callback_url'], $data['customer_url']);
         } else {
@@ -25,7 +24,21 @@ class PurchaseRequest extends AbstractRequest
             $data['cc_token'] = $cardReference;
         }
 
+        if ($email = $this->getEmail()) {
+            $data['email'] = $email;
+        }
+
         return $data;
+    }
+
+    public function getEmail()
+    {
+        return $this->getParameter('email');
+    }
+
+    public function setEmail($value)
+    {
+        return $this->setParameter('email', $value);
     }
 
     public function setUseBackendApi($flag)
