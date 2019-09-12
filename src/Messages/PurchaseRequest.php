@@ -9,7 +9,7 @@ class PurchaseRequest extends AbstractRequest
 
         $data['amount'] = $this->getAmount();
         $data['transaction_type'] = 'charge';
-        $data['order_reference'] = time();
+        $data['order_reference'] = uniqid('', true);
         $data['token_security'] = 'cvc_3ds';
         $data['request_cc_token'] = $this->getSaveCard() ? '1' : '0';
 

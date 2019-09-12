@@ -6,12 +6,12 @@ class SignedData
     private $data;
     private $excluded;
 
-    protected $dontInclude = ['locale'];
-
-    public function __construct(array $data)
+    public function __construct(array $data, array $dontInclude = ['locale'])
     {
         $this->data = $data;
         $this->excluded = [];
+        $this->dontInclude = $dontInclude;
+
         $this->prepareData();
     }
 
@@ -20,7 +20,7 @@ class SignedData
         return (new SignedData($data))->sign($secret);
     }
 
-    protected function sign($secret)
+    public function sign($secret)
     {
         $hmacPayload = [];
         foreach ($this->data as $key => $value) {
