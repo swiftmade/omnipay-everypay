@@ -13,6 +13,10 @@ class PurchaseRequest extends AbstractRequest
         $data['token_security'] = 'cvc_3ds';
         $data['request_cc_token'] = $this->getSaveCard() ? '1' : '0';
 
+        if ($cardReference = $this->getCardReference()) {
+            $data['cc_token'] = $cardReference;
+        }
+
         return $data;
     }
 
