@@ -57,12 +57,12 @@ class CompletePurchaseResponse extends AbstractResponse implements RedirectRespo
             throw new MismatchException('Invalid HMAC signature in the incoming request');
         }
 
-        if ($this->data['payment']['amount'] !== $this->data['request']['amount']) {
-            throw new MismatchException('Payment amount mismatch');
-        }
-
         if (!in_array($this->data['request']['payment_state'], $this->successfulStates)) {
             throw new PaymentFailedException('Payment has failed.');
+        }
+
+        if ($this->data['payment']['amount'] !== $this->data['request']['amount']) {
+            throw new MismatchException('Payment amount mismatch');
         }
     }
 
