@@ -1,8 +1,11 @@
 <?php
 namespace Omnipay\EveryPay\Messages;
 
+use Exception;
+use Omnipay\EveryPay\Common\CardToken;
 use Omnipay\EveryPay\Support\SignedData;
 use Omnipay\Common\Message\AbstractResponse;
+use Omnipay\EveryPay\Exceptions\PaymentException;
 use Omnipay\EveryPay\Exceptions\MismatchException;
 use Omnipay\Common\Message\RedirectResponseInterface;
 use Omnipay\EveryPay\Exceptions\PaymentFailedException;
@@ -12,6 +15,8 @@ use Omnipay\EveryPay\Exceptions\PaymentFailedException;
  */
 class CompletePurchaseResponse extends AbstractResponse implements RedirectResponseInterface
 {
+    protected $message;
+
     protected $successfulStates = [
         'settled',
         'authorised'
@@ -21,13 +26,20 @@ class CompletePurchaseResponse extends AbstractResponse implements RedirectRespo
     {
         try {
             $this->validateResponse();
-        } catch (\Exception $e) {
-            $this->status = $e->getStatus();
-            $this->reason = $e->getMessage();
+        } catch (PaymentException $e) {
+            $this->message = sprintf('%s - %s', $e->getStatus(), $e->getMessage());
+            return false;
+        } catch (Exception $e) {
+            $this->message = $e->getMessage();
             return false;
         }
 
         return true;
+    }
+
+    public function getMessage()
+    {
+        return $this->message;
     }
 
     public function isRedirect()
@@ -49,9 +61,17 @@ class CompletePurchaseResponse extends AbstractResponse implements RedirectRespo
             throw new MismatchException('Payment amount mismatch');
         }
 
-        if (!in_array($this->data['payment']['payment_state'], $this->successfulStates)) {
+        if (!in_array($this->data['request']['payment_state'], $this->successfulStates)) {
             throw new PaymentFailedException('Payment has failed.');
         }
+    }
+
+    public function getCardToken()
+    {
+        if (!isset($this->data['request']['cc_token'])) {
+            return null;
+        }
+        return CardToken::make($this->data['request']);
     }
 
     private function everyPayRequestHmac()
@@ -64,5 +84,10 @@ class CompletePurchaseResponse extends AbstractResponse implements RedirectRespo
         ]))
             ->sign($this->request->getSecret('secret'))
             ->toArray()['hmac'];
+    }
+
+    public function getTransactionReference()
+    {
+        return $this->data['request']['payment_reference'];
     }
 }
