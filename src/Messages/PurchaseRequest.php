@@ -24,8 +24,12 @@ class PurchaseRequest extends AbstractRequest
             $data['cc_token'] = $cardReference;
         }
 
+        if ($ip = $this->getClientIp()) {
+            $data['user_ip'] = $ip;
+        }
+
         if ($email = $this->getEmail()) {
-            $data['email'] = $email;
+            $data['emaail'] = $email;
         }
 
         return $data;
