@@ -3,11 +3,13 @@ namespace Omnipay\EveryPay\Support;
 
 class SignedData
 {
+    private $hmac;
     private $data;
     private $excluded;
 
-    public function __construct(array $data, array $dontInclude = ['locale'])
+    public function __construct(array $data, array $dontInclude = ['locale'], $hmac = true)
     {
+        $this->hmac = $hmac;
         $this->data = $data;
         $this->excluded = [];
         $this->dontInclude = $dontInclude;
@@ -18,6 +20,11 @@ class SignedData
     public static function make(array $data, $secret)
     {
         return (new SignedData($data))->sign($secret);
+    }
+
+    public static function withoutHmac(array $data, $secret)
+    {
+        return (new SignedData($data, ['locale'], false))->sign($secret);
     }
 
     public function sign($secret)
@@ -55,7 +62,9 @@ class SignedData
             }
         }
 
-        $this->appendHmacFields();
+        if ($this->hmac) {
+            $this->appendHmacFields();
+        }
     }
 
     private function appendHmacFields()

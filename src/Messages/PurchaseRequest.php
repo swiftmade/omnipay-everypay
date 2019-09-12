@@ -1,6 +1,8 @@
 <?php
 namespace Omnipay\EveryPay\Messages;
 
+use Omnipay\EveryPay\Support\SignedData;
+
 class PurchaseRequest extends AbstractRequest
 {
     public function getData()
@@ -8,16 +10,32 @@ class PurchaseRequest extends AbstractRequest
         $data = $this->getBaseData();
 
         $data['amount'] = $this->getAmount();
-        $data['transaction_type'] = 'charge';
         $data['order_reference'] = uniqid('', true);
-        $data['token_security'] = 'cvc_3ds';
-        $data['request_cc_token'] = $this->getSaveCard() ? '1' : '0';
+
+
+        if ($this->getUseBackendApi()) {
+            unset($data['callback_url'], $data['customer_url']);
+        } else {
+            $data['token_security'] = 'cvc';
+            $data['transaction_type'] = 'charge';
+            $data['request_cc_token'] = $this->getSaveCard() ? '1' : '0';
+        }
 
         if ($cardReference = $this->getCardReference()) {
             $data['cc_token'] = $cardReference;
         }
 
         return $data;
+    }
+
+    public function setUseBackendApi($flag)
+    {
+        return $this->setParameter('use_backend', $flag);
+    }
+
+    public function getUseBackendApi()
+    {
+        return $this->getParameter('use_backend');
     }
 
     public function setSaveCard($saveCard)
@@ -35,8 +53,37 @@ class PurchaseRequest extends AbstractRequest
         return $this->response = new PurchaseResponse($this, $data);
     }
 
+    public function sendDataToBackend($data)
+    {
+        // TODO: Production
+        // $endpoint = 'https://gw.every-pay.eu/';
+        $endpoint = 'https://gw-demo.every-pay.com/';
+
+        $data['user_ip'] = $_SERVER['REMOTE_ADDR'];
+        $data['device_info'] = json_encode([
+            'user_agent' => $_SERVER['HTTP_USER_AGENT']
+        ]);
+        ksort($data);
+
+        $data = SignedData::withoutHmac($data, $this->getSecret())->toArray();
+
+        $payload = [
+            'charge' => $data
+        ];
+
+        $response = $this->httpClient->request('POST', sprintf('%s%s', $endpoint, 'charges'), [
+            'Accept' => 'application/json',
+            'Content-Type' => 'application/json',
+        ], json_encode($payload));
+
+        return $this->response = new BackendPurchaseResponse($this, $response->getBody()->getContents());
+    }
+
     public function sendData($data)
     {
-        return $this->createResponse($data);
+        if ($this->getUseBackendApi()) {
+            return $this->sendDataToBackend($data);
+        }
+        return $this->response = new PurchaseResponse($this, $data);
     }
 }
