@@ -27,7 +27,6 @@ abstract class AbstractRequest extends BaseAbstractRequest
             'account_id' => $this->getAccountId(),
             'nonce' => uniqid(true),
             'timestamp' => time(),
-            'user_ip' => '127.0.0.1',
             'customer_url' => $this->getCustomerUrl(),
             'callback_url' => $this->getCallbackUrl(),
         ];

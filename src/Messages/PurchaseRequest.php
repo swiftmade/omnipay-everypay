@@ -16,12 +16,12 @@ class PurchaseRequest extends AbstractRequest
         if ($this->getUseBackendApi()) {
             unset($data['callback_url'], $data['customer_url']);
         } else {
-            $data['token_security'] = 'cvc';
             $data['transaction_type'] = 'charge';
             $data['request_cc_token'] = $this->getSaveCard() ? '1' : '0';
         }
 
         if ($cardReference = $this->getCardReference()) {
+            $data['token_security'] = 'none';
             $data['cc_token'] = $cardReference;
         }
 
