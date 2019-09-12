@@ -1,13 +1,16 @@
 <?php
 
+use Omnipay\EveryPay\Gateway;
 use Omnipay\Tests\GatewayTestCase;
-use Swiftmade\EveryPay\EveryPayGateway;
 
 class EveryPayTest extends GatewayTestCase
 {
+    use Environment;
+
     public function setUp()
     {
         parent::setUp();
-        $this->gateway = new EveryPayGateway();
+        $this->loadEnvVars();
+        $this->gateway = new Gateway();
     }
 }

@@ -20,12 +20,12 @@
   },
   "autoload": {
     "psr-4": {
-      "Swiftmade\\EveryPay\\": "src/"
+      "Omnipay\\EveryPay\\": "src/"
     }
   },
   "autoload-dev": {
     "classmap": [
-      "tests/TestCase.php"
+      "tests/Environment.php"
     ]
   }
 }
