@@ -29,7 +29,7 @@ class PurchaseRequest extends AbstractRequest
         }
 
         if ($email = $this->getEmail()) {
-            $data['emaail'] = $email;
+            $data['email'] = $email;
         }
 
         return $data;
