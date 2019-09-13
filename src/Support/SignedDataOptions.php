@@ -31,6 +31,17 @@ class SignedDataOptions
         ]);
     }
 
+    public function dontInclude(array $fields)
+    {
+        $this->options['dontInclude'] = array_unique(
+            array_merge(
+                $this->options['dontInclude'] ?? [],
+                $fields
+            )
+        );
+        return $this;
+    }
+
     public function shouldHmacInclude($field)
     {
         return !in_array($field, $this->options['dontInclude']);

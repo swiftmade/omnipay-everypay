@@ -77,11 +77,18 @@ class CompletePurchaseResponse extends AbstractResponse implements RedirectRespo
 
     private function everyPayRequestHmac()
     {
+        $options = SignedDataOptions::gateway(
+            $this->request->getSecret()
+        )->dontInclude([
+            'utf8',
+            'hmac',
+            '_method',
+            'authenticity_token'
+        ]);
+
         return SignedData::make(
             $this->data['request'],
-            SignedDataOptions::gateway(
-                $this->request->getSecret()
-            )
+            $options
         )['hmac'];
     }
 
