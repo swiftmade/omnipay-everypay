@@ -4,6 +4,7 @@ namespace Omnipay\EveryPay;
 use Omnipay\Common\AbstractGateway;
 use Omnipay\EveryPay\Support\SignedData;
 use Omnipay\EveryPay\Messages\PurchaseRequest;
+use Omnipay\EveryPay\Messages\BackendPurchaseRequest;
 use Omnipay\EveryPay\Messages\CompletePurchaseRequest;
 
 class Gateway extends AbstractGateway
@@ -22,6 +23,9 @@ class Gateway extends AbstractGateway
 
     public function purchase(array $parameters = [])
     {
+        if (isset($parameters['backend']) && $parameters['backend']) {
+            return $this->createRequest(BackendPurchaseRequest::class, $parameters);
+        }
         return $this->createRequest(PurchaseRequest::class, $parameters);
     }
 

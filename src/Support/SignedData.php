@@ -3,31 +3,28 @@ namespace Omnipay\EveryPay\Support;
 
 class SignedData
 {
-    private $hmac;
     private $data;
+    private $options;
     private $excluded;
 
-    public function __construct(array $data, array $dontInclude = ['locale'], $hmac = true)
+    public function __construct(array $data, SignedDataOptions $options)
     {
-        $this->hmac = $hmac;
-        $this->data = $data;
+        $this->data = array_merge([], $data);
+        $this->options = $options;
         $this->excluded = [];
-        $this->dontInclude = $dontInclude;
 
+        ksort($this->data);
         $this->prepareData();
     }
 
-    public static function make(array $data, $secret)
+    public static function make(array $data, SignedDataOptions $options)
     {
-        return (new SignedData($data))->sign($secret);
+        return (new self($data, $options))
+            ->sign()
+            ->toArray();
     }
 
-    public static function withoutHmac(array $data, $secret)
-    {
-        return (new SignedData($data, ['locale'], false))->sign($secret);
-    }
-
-    public function sign($secret)
+    public function sign()
     {
         $hmacPayload = [];
         foreach ($this->data as $key => $value) {
@@ -38,7 +35,11 @@ class SignedData
         $hmacPayload = implode('&', $hmacPayload);
 
         // Calculate hmac
-        $this->data['hmac'] = hash_hmac('sha1', $hmacPayload, $secret);
+        $this->data['hmac'] = hash_hmac(
+            'sha1',
+            $hmacPayload,
+            $this->options->secret()
+        );
 
         // Add back excluded fields (locale)
         foreach ($this->excluded as $key => $value) {
@@ -55,14 +56,14 @@ class SignedData
 
     private function prepareData()
     {
-        foreach ($this->dontInclude as $key) {
-            if (isset($this->data[$key])) {
-                $this->excluded[$key] = $this->data[$key];
-                unset($this->data[$key]);
+        foreach ($this->data as $field => $value) {
+            if (!$this->options->shouldHmacInclude($field)) {
+                $this->excluded[$field] = $value;
+                unset($this->data[$field]);
             }
         }
 
-        if ($this->hmac) {
+        if ($this->options->shouldAppendHmacFields()) {
             $this->appendHmacFields();
         }
     }

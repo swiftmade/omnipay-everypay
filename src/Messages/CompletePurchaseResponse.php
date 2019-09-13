@@ -9,6 +9,7 @@ use Omnipay\EveryPay\Exceptions\PaymentException;
 use Omnipay\EveryPay\Exceptions\MismatchException;
 use Omnipay\Common\Message\RedirectResponseInterface;
 use Omnipay\EveryPay\Exceptions\PaymentFailedException;
+use Omnipay\EveryPay\Support\SignedDataOptions;
 
 /**
  * Response
@@ -76,14 +77,12 @@ class CompletePurchaseResponse extends AbstractResponse implements RedirectRespo
 
     private function everyPayRequestHmac()
     {
-        return (new SignedData($this->data['request'], [
-            'utf8',
-            'hmac',
-            '_method',
-            'authenticity_token'
-        ]))
-            ->sign($this->request->getSecret('secret'))
-            ->toArray()['hmac'];
+        return SignedData::make(
+            $this->data['request'],
+            SignedDataOptions::gateway(
+                $this->request->getSecret()
+            )
+        )['hmac'];
     }
 
     public function getTransactionReference()

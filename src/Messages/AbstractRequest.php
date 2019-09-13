@@ -22,7 +22,7 @@ abstract class AbstractRequest extends BaseAbstractRequest
 
     protected function getBaseData()
     {
-        return [
+        $data = [
             'api_username' => $this->getUsername(),
             'account_id' => $this->getAccountId(),
             'nonce' => uniqid(true),
@@ -30,6 +30,16 @@ abstract class AbstractRequest extends BaseAbstractRequest
             'customer_url' => $this->getCustomerUrl(),
             'callback_url' => $this->getCallbackUrl(),
         ];
+
+        if ($ip = $this->getClientIp()) {
+            $data['user_ip'] = $ip;
+        }
+
+        if ($email = $this->getEmail()) {
+            $data['email'] = $email;
+        }
+
+        return $data;
     }
 
     protected function createResponse($data)

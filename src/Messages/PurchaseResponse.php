@@ -6,6 +6,7 @@ use Omnipay\Common\Message\AbstractResponse;
 use Omnipay\Common\Message\RequestInterface;
 use Omnipay\Common\Message\RedirectResponseInterface;
 use Omnipay\EveryPay\Concerns\CustomRedirectHtml;
+use Omnipay\EveryPay\Support\SignedDataOptions;
 
 /**
  * Response
@@ -37,7 +38,12 @@ class PurchaseResponse extends AbstractResponse implements RedirectResponseInter
 
     public function getRedirectData()
     {
-        return  SignedData::make($this->data, $this->request->getSecret())->toArray();
+        return SignedData::make(
+            $this->data,
+            SignedDataOptions::gateway(
+                $this->request->getSecret()
+            )
+        );
     }
 
     public function getRedirectUrl()
