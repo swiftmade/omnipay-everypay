@@ -18,14 +18,14 @@ class BackendPurchaseResponse extends AbstractResponse implements RedirectRespon
     public function __construct(RequestInterface $request, $data)
     {
         $this->request = $request;
-        $this->data = $data;
+        $this->data = @json_decode($data, true);
     }
 
     public function isSuccessful()
     {
-        $response = @json_decode($this->data, true);
+        $response = $this->data;
 
-        if (!is_array($response) || (!isset($response['errors'], $response['charge']))) {
+        if (!is_array($response) || (!isset($response['errors']) && !isset($response['charge']))) {
             $this->message = 'Unrecognized response format';
             return false;
         }
@@ -37,6 +37,11 @@ class BackendPurchaseResponse extends AbstractResponse implements RedirectRespon
 
         $charge = $response['charge'];
 
+        if ($charge['transaction_result'] !== 'completed') {
+            $this->message = 'Transaction has failed - ' . $charge['transaction_result'];
+            return false;
+        }
+
         if (!in_array($charge['payment_state'], ['authorised', 'settled'])) {
             $this->message = 'Payment has failed - ' . $charge['payment_state'];
             return false;
@@ -47,8 +52,12 @@ class BackendPurchaseResponse extends AbstractResponse implements RedirectRespon
             return false;
         }
 
-        dd($charge);
         return true;
+    }
+
+    public function getTransactionReference()
+    {
+        return $this->data['charge']['payment_reference'];
     }
 
     public function isRedirect()
