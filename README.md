@@ -7,6 +7,7 @@
 The package currently supports a limited set of essential features:
 
 - Charging through Gateway API
+- Charging through Backend API (using tokens)
 - Requesting card tokens
 
 **WARNING:** Not production ready yet!
@@ -28,7 +29,7 @@ $gateway = Omnipay::create('EveryPay')->initialize([
 ]);
 ```
 
-### Process a purchase
+### Process a purchase (Gateway)
 ```php
 $purchase = $gateway
     ->purchase(['amount' => $amount])
@@ -50,6 +51,29 @@ $response = $purchase->send();
 $payment = $response->getData();
 
 return $response->redirect(); // this will return a self-submitting html form to EveryPay Gateway API
+```
+
+### Process a purchase (Backend)
+```php
+$purchase = $gateway
+    ->purchase(['amount' => $amount, 'backend' => true])
+    ->setClientIp($_SERVER['REMOTE_ADDR']) // optional, helps fraud detection
+    ->setEmail(''); // optional, helps fraud detection
+    
+// Uncomment and pass a valid card token here
+// $purchase->setCardReference($token); 
+
+$response = $purchase->send();
+
+// Store the payment response data if you wish.
+$payment = $response->getData();
+
+if ($response->isSuccessful()) {
+   // Payment done!
+} else {
+  // Something went wrong!
+  // Check $response->getMessage();
+}
 ```
 
 
