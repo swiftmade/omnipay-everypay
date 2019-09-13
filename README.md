@@ -53,6 +53,29 @@ $payment = $response->getData();
 return $response->redirect(); // this will return a self-submitting html form to EveryPay Gateway API
 ```
 
+### Complete Payment (handle Gateway redirect from EveryPay)
+
+EveryPay will return to your callback url with a `PUT` request once the payment is finalized.
+You need to validate this response and check if the payment succeeded.
+
+```php
+// Here, pass the payment array that we previously stored when creating the payment
+$response = $gateway->completePurchase(['payment' => $payment])->send();
+
+if (!$response->isSuccessful()) {
+  // Payment failed!
+  // Check $response->getMessage() for more details.
+}
+
+// Payment succeeded!
+// Here's your payment reference number: $response->getTransactionReference()
+
+if ($card = $response->getCardToken()) {
+  // You also got back a card token
+  // Store this somewhere safe for future use!
+}
+```
+
 ### Process a purchase (Backend)
 ```php
 $purchase = $gateway
@@ -77,25 +100,4 @@ if ($response->isSuccessful()) {
 ```
 
 
-### Complete Payment
 
-EveryPay will return to your callback url with a `PUT` request once the payment is finalized.
-You need to validate this response and check if the payment succeeded.
-
-```php
-// Here, pass the payment array that we previously stored when creating the payment
-$response = $gateway->completePurchase(['payment' => $payment])->send();
-
-if (!$response->isSuccessful()) {
-  // Payment failed!
-  // Check $response->getMessage() for more details.
-}
-
-// Payment succeeded!
-// Here's your payment reference number: $response->getTransactionReference()
-
-if ($card = $response->getCardToken()) {
-  // You also got back a card token
-  // Store this somewhere safe for future use!
-}
-```
