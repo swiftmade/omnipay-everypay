@@ -6,6 +6,9 @@ use Omnipay\EveryPay\Support\SignedDataOptions;
 
 class BackendPurchaseRequest extends AbstractRequest
 {
+    protected $liveEndpoint = 'https://gw.every-pay.eu';
+    protected $testEndpoint = 'https://gw-demo.every-pay.com';
+
     public function getData()
     {
         $data = $this->getBaseData();
@@ -35,24 +38,42 @@ class BackendPurchaseRequest extends AbstractRequest
         return $this->setParameter('email', $value);
     }
 
-    public function sendData($data)
+    protected function signData($envelope, $data)
     {
-        // TODO: Production
-        // $endpoint = 'https://gw.every-pay.eu/';
-        $endpoint = 'https://gw-demo.every-pay.com/';
-
-        $payload = [
-            'charge' => SignedData::make(
+        return [
+            $envelope => SignedData::make(
                 $data,
                 SignedDataOptions::backend($this->getSecret())
             )
         ];
+    }
 
-        $response = $this->httpClient->request('POST', sprintf('%s%s', $endpoint, 'charges'), [
+    protected function createResponse($response)
+    {
+        $status = $response->getStatusCode();
+        $body = $response->getBody()->getContents();
+        $body = @json_decode($body, true);
+
+        $data = compact('status', 'body');
+        return $this->response = new BackendPurchaseResponse($this, $data);
+    }
+
+    public function sendData($data)
+    {
+        $headers = [
             'Accept' => 'application/json',
             'Content-Type' => 'application/json',
-        ], json_encode($payload));
+        ];
 
-        return $this->response = new BackendPurchaseResponse($this, $response->getBody()->getContents());
+        $data = $this->signData('charge', $data);
+
+        $response = $this->httpClient->request(
+            'POST',
+            $this->getEndpoint() . '/charges',
+            $headers,
+            json_encode($data)
+        );
+
+        return $this->createResponse($response);
     }
 }
