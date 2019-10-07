@@ -48,7 +48,8 @@ class PurchaseResponse extends AbstractResponse implements RedirectResponseInter
 
     public function getRedirectUrl()
     {
-        // TODO: Change this if in production mode!
-        return 'https://igw-demo.every-pay.com/transactions/';
+        return $this->request->getTestMode()
+            ? 'https://igw-demo.every-pay.com/transactions/'
+            : 'https://pay.every-pay.eu/transactions/';
     }
 }
