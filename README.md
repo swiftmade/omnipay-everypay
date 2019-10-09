@@ -12,6 +12,10 @@ The package currently supports a limited set of essential features:
 
 ## Usage
 
+Require the package using composer:
+
+> composer require swiftmade/omnipay-everypay
+
 ### Initialize the gateway
 
 ```php
