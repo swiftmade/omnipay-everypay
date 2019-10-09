@@ -1,19 +1,14 @@
 # Omnipay - EveryPay Gateway
 
-*Disclaimer: This package is **not** an official package by EveryPay AS nor by omnipay.*
+_Disclaimer: This package is **not** an official package by EveryPay AS nor by omnipay._
 
 [EveryPay](https://every-pay.com/) is an Estonian payment provider, currently working with LHV and SEB banks.
 
 The package currently supports a limited set of essential features:
 
-- Charging through Gateway API
-- Charging through Backend API (using tokens)
-- Requesting card tokens
-
-**WARNING:** Not production ready yet!
-
-- [ ] Add production endpoints
-- [ ] Fix remaining todos
+- Charge cards through the Gateway API (redirect)
+- Requesting card tokens (Gateway API only)
+- Token payments using Backend API
 
 ## Usage
 
@@ -24,26 +19,27 @@ $gateway = Omnipay::create('EveryPay')->initialize([
   'username' => '', // EveryPay api username
   'secret' => '', // EveryPay api secret
   'accountId' => '', // merchant account ID
-  'testMode' => true, // production mode is not yet supported. coming soon!
+  'testMode' => true, // set to false for production!
   'locale' => 'en', // et=Estonian, see integration guide for more options.
 ]);
 ```
 
 ### Process a purchase (Gateway)
+
 ```php
 $purchase = $gateway
     ->purchase(['amount' => $amount])
+    ->setTransactionId(uniqid()) // unique order id for this purchase
     ->setClientIp($_SERVER['REMOTE_ADDR']) // optional, helps fraud detection
     ->setEmail('') // optional, helps fraud detection
     ->setCallbackUrl($callbackUrl) // payment callback where payment result will be sent (with PUT)
     ->setCustomerUrl($callbackUrl); // the url to redirect if the payment fails or gets cancelled
 
+// Uncomment if you want to make the payment using a previously stored card token
+// $purchase->setCardReference($token);
 
 // Uncomment if you want to store the card as a token after the payment
 // $purchase->setSaveCard(true);
-
-// Uncomment if you want to make the payment using a previously stored card token  
-// $purchase->setCardReference($token); 
 
 $response = $purchase->send();
 
@@ -76,15 +72,16 @@ if ($card = $response->getCardToken()) {
 }
 ```
 
-### Process a purchase (Backend)
+### Make a token payment (Backend)
+
 ```php
 $purchase = $gateway
     ->purchase(['amount' => $amount, 'backend' => true])
     ->setClientIp($_SERVER['REMOTE_ADDR']) // optional, helps fraud detection
     ->setEmail(''); // optional, helps fraud detection
-    
-// Uncomment and pass a valid card token here
-// $purchase->setCardReference($token); 
+
+// Pass a valid card token here
+$purchase->setCardReference($token);
 
 $response = $purchase->send();
 
@@ -98,6 +95,3 @@ if ($response->isSuccessful()) {
   // Check $response->getMessage();
 }
 ```
-
-
-
