@@ -24,6 +24,24 @@ class SignedData
             ->toArray();
     }
 
+    public static function verify(array $data, $secret)
+    {
+        $candidateData = [];
+        $hmacFields = explode(',', $data['hmac_fields']);
+
+        foreach ($hmacFields as $field) {
+            $candidateData[] = $field . '=' . $data[$field];
+        }
+
+        $candidateHmac = hash_hmac(
+            'sha1',
+            implode('&', $candidateData),
+            $secret
+        );
+
+        return $data['hmac'] === $candidateHmac;
+    }
+
     public function sign()
     {
         $hmacPayload = [];

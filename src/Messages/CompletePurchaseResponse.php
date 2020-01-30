@@ -9,7 +9,6 @@ use Omnipay\EveryPay\Exceptions\PaymentException;
 use Omnipay\EveryPay\Exceptions\MismatchException;
 use Omnipay\Common\Message\RedirectResponseInterface;
 use Omnipay\EveryPay\Exceptions\PaymentFailedException;
-use Omnipay\EveryPay\Support\SignedDataOptions;
 
 /**
  * Response
@@ -54,7 +53,7 @@ class CompletePurchaseResponse extends AbstractResponse implements RedirectRespo
             throw new MismatchException('Order reference returned by gateway does not match');
         }
 
-        if ($this->everyPayRequestHmac() !== $this->data['request']['hmac']) {
+        if (!$this->isAuthentic()) {
             throw new MismatchException('Invalid HMAC signature in the incoming request');
         }
 
@@ -75,21 +74,12 @@ class CompletePurchaseResponse extends AbstractResponse implements RedirectRespo
         return CardToken::make($this->data['request']);
     }
 
-    private function everyPayRequestHmac()
+    private function isAuthentic()
     {
-        $options = SignedDataOptions::gateway(
-            $this->request->getSecret()
-        )->dontInclude([
-            'utf8',
-            'hmac',
-            '_method',
-            'authenticity_token'
-        ]);
-
-        return SignedData::make(
+        return SignedData::verify(
             $this->data['request'],
-            $options
-        )['hmac'];
+            $this->request->getSecret()
+        );
     }
 
     public function getTransactionReference()
