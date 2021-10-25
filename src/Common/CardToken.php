@@ -18,6 +18,7 @@ class CardToken extends CreditCard
         ]);
 
         $card->setToken($payload['cc_token']);
+
         return $card;
     }
 

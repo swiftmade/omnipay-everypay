@@ -7,7 +7,7 @@ class EveryPayTest extends GatewayTestCase
 {
     use Environment;
 
-    public function setUp()
+    public function setUp(): void
     {
         parent::setUp();
         $this->loadEnvVars();

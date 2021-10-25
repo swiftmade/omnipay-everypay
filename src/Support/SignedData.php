@@ -75,7 +75,7 @@ class SignedData
     private function prepareData()
     {
         foreach ($this->data as $field => $value) {
-            if (!$this->options->shouldHmacInclude($field)) {
+            if (! $this->options->shouldHmacInclude($field)) {
                 $this->excluded[$field] = $value;
                 unset($this->data[$field]);
             }

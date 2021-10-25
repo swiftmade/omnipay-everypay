@@ -19,7 +19,7 @@ class CompletePurchaseResponse extends AbstractResponse implements RedirectRespo
 
     protected $successfulStates = [
         'settled',
-        'authorised'
+        'authorised',
     ];
 
     public function isSuccessful()
@@ -28,9 +28,11 @@ class CompletePurchaseResponse extends AbstractResponse implements RedirectRespo
             $this->validateResponse();
         } catch (PaymentException $e) {
             $this->message = sprintf('%s - %s', $e->getStatus(), $e->getMessage());
+
             return false;
         } catch (Exception $e) {
             $this->message = $e->getMessage();
+
             return false;
         }
 
@@ -53,11 +55,11 @@ class CompletePurchaseResponse extends AbstractResponse implements RedirectRespo
             throw new MismatchException('Order reference returned by gateway does not match');
         }
 
-        if (!$this->isAuthentic()) {
+        if (! $this->isAuthentic()) {
             throw new MismatchException('Invalid HMAC signature in the incoming request');
         }
 
-        if (!in_array($this->data['request']['payment_state'], $this->successfulStates)) {
+        if (! in_array($this->data['request']['payment_state'], $this->successfulStates)) {
             throw new PaymentFailedException('Payment has failed.');
         }
 
@@ -68,9 +70,10 @@ class CompletePurchaseResponse extends AbstractResponse implements RedirectRespo
 
     public function getCardToken()
     {
-        if (!isset($this->data['request']['cc_token'])) {
+        if (! isset($this->data['request']['cc_token'])) {
             return null;
         }
+
         return CardToken::make($this->data['request']);
     }
 

@@ -26,6 +26,7 @@ class Gateway extends AbstractGateway
         if (isset($parameters['backend']) && $parameters['backend']) {
             return $this->createRequest(BackendPurchaseRequest::class, $parameters);
         }
+
         return $this->createRequest(PurchaseRequest::class, $parameters);
     }
 

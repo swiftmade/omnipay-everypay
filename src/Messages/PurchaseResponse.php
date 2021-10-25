@@ -4,9 +4,9 @@ namespace Omnipay\EveryPay\Messages;
 use Omnipay\EveryPay\Support\SignedData;
 use Omnipay\Common\Message\AbstractResponse;
 use Omnipay\Common\Message\RequestInterface;
-use Omnipay\Common\Message\RedirectResponseInterface;
-use Omnipay\EveryPay\Concerns\CustomRedirectHtml;
 use Omnipay\EveryPay\Support\SignedDataOptions;
+use Omnipay\EveryPay\Concerns\CustomRedirectHtml;
+use Omnipay\Common\Message\RedirectResponseInterface;
 
 /**
  * Response

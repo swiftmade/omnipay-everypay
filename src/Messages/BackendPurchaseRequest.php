@@ -22,7 +22,7 @@ class BackendPurchaseRequest extends AbstractRequest
         }
 
         $data['device_info'] = json_encode([
-            'user_agent' => $_SERVER['HTTP_USER_AGENT']
+            'user_agent' => $_SERVER['HTTP_USER_AGENT'],
         ]);
 
         return $data;
@@ -44,7 +44,7 @@ class BackendPurchaseRequest extends AbstractRequest
             $envelope => SignedData::make(
                 $data,
                 SignedDataOptions::backend($this->getSecret())
-            )
+            ),
         ];
     }
 
@@ -55,6 +55,7 @@ class BackendPurchaseRequest extends AbstractRequest
         $body = @json_decode($body, true);
 
         $data = compact('status', 'body');
+
         return $this->response = new BackendPurchaseResponse($this, $data);
     }
 
