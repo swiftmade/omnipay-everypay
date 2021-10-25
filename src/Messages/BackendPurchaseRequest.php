@@ -6,9 +6,6 @@ use Omnipay\EveryPay\Support\SignedDataOptions;
 
 class BackendPurchaseRequest extends AbstractRequest
 {
-    protected $liveEndpoint = 'https://pay.every-pay.eu/api/v4';
-    protected $testEndpoint = 'https://igw-demo.every-pay.com/api/v4';
-
     public function getData()
     {
         $data = $this->getBaseData();
@@ -61,17 +58,13 @@ class BackendPurchaseRequest extends AbstractRequest
 
     public function sendData($data)
     {
-        $headers = [
-            'Accept' => 'application/json',
-            'Content-Type' => 'application/json',
-        ];
 
         $data = $this->signData('charge', $data);
 
         $response = $this->httpClient->request(
             'POST',
-            $this->getEndpoint() . '/charges',
-            $headers,
+            $this->getEndpoint() . '/payments/mit',
+            $this->getHeaders(),
             json_encode($data)
         );
 

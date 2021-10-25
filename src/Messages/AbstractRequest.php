@@ -12,8 +12,8 @@ abstract class AbstractRequest extends BaseAbstractRequest
 {
     use Parameters;
 
-    protected $liveEndpoint = 'https://pay.every-pay.eu/transactions/';
-    protected $testEndpoint = 'https://igw-demo.every-pay.com/transactions/';
+    protected $liveEndpoint = 'https://pay.every-pay.eu/api/v4';
+    protected $testEndpoint = 'https://igw-demo.every-pay.com/api/v4';
 
     public function getEndpoint()
     {
@@ -40,6 +40,18 @@ abstract class AbstractRequest extends BaseAbstractRequest
         }
 
         return $data;
+    }
+
+
+    protected function getHeaders()
+    {
+        return [
+            'Accept' => 'application/json',
+            'Content-Type' => 'application/json',
+            'Authorization' => 'Basic ' . base64_encode(
+                sprintf('%s:%s', $this->getUsername(), $this->getSecret())
+            ),
+        ];
     }
 
     protected function createResponse($data)

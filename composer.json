@@ -12,6 +12,7 @@
   "minimum-stability": "stable",
   "require": {
     "php": "^7.2|^8",
+    "ext-json": "*",
     "league/omnipay": "^3"
   },
   "require-dev": {
