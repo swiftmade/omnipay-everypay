@@ -6,8 +6,8 @@ use Omnipay\EveryPay\Support\SignedDataOptions;
 
 class BackendPurchaseRequest extends AbstractRequest
 {
-    protected $liveEndpoint = 'https://gw.every-pay.eu';
-    protected $testEndpoint = 'https://gw-demo.every-pay.com';
+    protected $liveEndpoint = 'https://pay.every-pay.eu/api/v4';
+    protected $testEndpoint = 'https://igw-demo.every-pay.com/api/v4';
 
     public function getData()
     {
