@@ -24,11 +24,10 @@ abstract class AbstractRequest extends BaseAbstractRequest
     {
         $data = [
             'api_username' => $this->getUsername(),
-            'account_id' => $this->getAccountId(),
+            'account_name' => $this->getAccountName(),
             'nonce' => uniqid(true),
             'timestamp' => time(),
             'customer_url' => $this->getCustomerUrl(),
-            'callback_url' => $this->getCallbackUrl(),
         ];
 
         if ($ip = $this->getClientIp()) {
@@ -67,15 +66,5 @@ abstract class AbstractRequest extends BaseAbstractRequest
     public function getCustomerUrl()
     {
         return $this->getParameter('customerUrl');
-    }
-
-    public function setCallbackUrl($url)
-    {
-        return $this->setParameter('callbackUrl', $url);
-    }
-
-    public function getCallbackUrl()
-    {
-        return $this->getParameter('callbackUrl');
     }
 }

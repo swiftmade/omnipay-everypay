@@ -8,7 +8,7 @@ trait Parameters
         return [
             'username' => getenv('EVERY_PAY_API_USERNAME'), // api_username
             'secret' => getenv('EVERY_PAY_API_SECRET'), // api_secret
-            'accountId' => getenv('EVERY_PAY_ACCOUNT_ID'), // processing account
+            'accountName' => getenv('EVERY_PAY_ACCOUNT_NAME'), // processing account
             'testMode' => true,
             'locale' => 'et',
         ];
@@ -34,14 +34,14 @@ trait Parameters
         return $this->setParameter('secret', $secret);
     }
 
-    public function getAccountId()
+    public function getAccountName()
     {
-        return $this->getParameter('accountId');
+        return $this->getParameter('accountName');
     }
 
-    public function setAccountId($accountId)
+    public function setAccountName($accountName)
     {
-        return $this->setParameter('accountId', $accountId);
+        return $this->setParameter('accountName', $accountName);
     }
 
     public function getLocale()

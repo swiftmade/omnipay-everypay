@@ -4,11 +4,11 @@ _Disclaimer: This package is **not** an official package by EveryPay AS nor by o
 
 [EveryPay](https://every-pay.com/) is an Estonian payment provider, currently working with LHV and SEB banks.
 
-The package currently supports a limited set of essential features:
+The package currently supports a limited set of essential features in EveryPay v4:
 
-- Charge cards through the Gateway API (redirect)
-- Requesting card tokens (Gateway API only)
-- Token payments using Backend API
+- One-off payments
+- Requesting card tokens
+- One-click / CIT (Customer initiated Transactions) Payments
 
 ## Usage
 
@@ -22,7 +22,7 @@ Require the package using composer:
 $gateway = Omnipay::create('EveryPay')->initialize([
   'username' => '', // EveryPay api username
   'secret' => '', // EveryPay api secret
-  'accountId' => '', // merchant account ID
+  'accountName' => '', // merchant account ID
   'testMode' => true, // set to false for production!
   'locale' => 'en', // et=Estonian, see integration guide for more options.
 ]);
@@ -36,8 +36,7 @@ $purchase = $gateway
     ->setTransactionId(uniqid()) // unique order id for this purchase
     ->setClientIp($_SERVER['REMOTE_ADDR']) // optional, helps fraud detection
     ->setEmail('') // optional, helps fraud detection
-    ->setCallbackUrl($callbackUrl) // payment callback where payment result will be sent (with PUT)
-    ->setCustomerUrl($callbackUrl); // the url to redirect if the payment fails or gets cancelled
+    ->setCustomerUrl($customerUrl); // the url to redirect if the payment fails or gets cancelled
 
 // Uncomment if you want to make the payment using a previously stored card token
 // $purchase->setCardReference($token);
