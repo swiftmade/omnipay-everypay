@@ -36,7 +36,7 @@ $purchase = $gateway
     ->setTransactionId(uniqid()) // unique order id for this purchase
     ->setClientIp($_SERVER['REMOTE_ADDR']) // optional, helps fraud detection
     ->setEmail('') // optional, helps fraud detection
-    ->setCustomerUrl($customerUrl); // the url to redirect if the payment fails or gets cancelled
+    ->setReturnUrl($customerUrl); // the url to redirect if the payment fails or gets cancelled
 
 // Uncomment if you want to make the payment using a previously stored card token
 // $purchase->setCardReference($token);

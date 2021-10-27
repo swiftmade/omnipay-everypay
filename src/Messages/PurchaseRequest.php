@@ -13,6 +13,11 @@ class PurchaseRequest extends AbstractRequest
         $data['transaction_type'] = 'charge';
         $data['request_cc_token'] = $this->getSaveCard() ? '1' : '0';
 
+        if ($this->getSaveCard()) {
+            $data['request_token'] = true;
+            $data['token_agreement'] = 'unscheduled';
+        }
+
         if ($cardReference = $this->getCardReference()) {
             // TODO: Allow setting by parameter
             $data['token_security'] = 'none';

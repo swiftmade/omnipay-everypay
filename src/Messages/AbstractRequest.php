@@ -22,25 +22,25 @@ abstract class AbstractRequest extends BaseAbstractRequest
 
     protected function getBaseData()
     {
-        $data = [
+        return [
+            /**
+             * The api_username of the Merchant sending the request.
+             * Must match with username in the Authorization HTTP header.
+             */
             'api_username' => $this->getUsername(),
-            'account_name' => $this->getAccountName(),
+
+            /**
+             * Unique string to prevent replay attacks
+             */
             'nonce' => uniqid(true),
-            'timestamp' => time(),
-            'customer_url' => $this->getCustomerUrl(),
+
+            /**
+             * The timestamp field represents the time of the request.
+             * The request will be rejected if the provided timestamp is outside of an allowed time-window.
+             */
+            'timestamp' => date('c'),
         ];
-
-        if ($ip = $this->getClientIp()) {
-            $data['user_ip'] = $ip;
-        }
-
-        if ($email = $this->getEmail()) {
-            $data['email'] = $email;
-        }
-
-        return $data;
     }
-
 
     protected function getHeaders()
     {
@@ -56,15 +56,5 @@ abstract class AbstractRequest extends BaseAbstractRequest
     protected function createResponse($data)
     {
         return $this->response = new Response($this, $data);
-    }
-
-    public function setCustomerUrl($url)
-    {
-        return $this->setParameter('customerUrl', $url);
-    }
-
-    public function getCustomerUrl()
-    {
-        return $this->getParameter('customerUrl');
     }
 }
