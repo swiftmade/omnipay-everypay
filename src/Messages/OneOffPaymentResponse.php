@@ -12,7 +12,7 @@ use Omnipay\Common\Message\RedirectResponseInterface;
  * @see https://support.every-pay.com/downloads/everypay_apiv4_integration_documentation.pdf
  * Page 26
  */
-class CitPaymentResponse extends AbstractResponse implements RedirectResponseInterface
+class OneOffPaymentResponse extends AbstractResponse implements RedirectResponseInterface
 {
     public $message;
 
@@ -26,26 +26,7 @@ class CitPaymentResponse extends AbstractResponse implements RedirectResponseInt
 
     public function isSuccessful(): bool
     {
-        if (is_null($this->data)) {
-            return false;
-        }
-
-        if ($this->data['order_reference'] !== $this->request->getTransactionId()) {
-            $this->message = 'Transaction ID (order_reference) mismatch.';
-            return false;
-        }
-
-        $successfulStates = [
-            PaymentState::SETTLED,
-            PaymentState::AUTHORISED,
-        ];
-
-        if (! in_array($this->data['payment_state'], $successfulStates)) {
-            $this->message = 'Payment has failed - ' . $this->data['payment_state'];
-            return false;
-        }
-
-        return true;
+        return false;
     }
 
     public function getTransactionReference()
@@ -55,6 +36,10 @@ class CitPaymentResponse extends AbstractResponse implements RedirectResponseInt
 
     public function isRedirect(): bool
     {
+        if (isset($this->data['error'])) {
+            return false;
+        }
+
         return isset($this->data['payment_link']);
     }
 

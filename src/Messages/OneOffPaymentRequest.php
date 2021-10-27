@@ -6,16 +6,16 @@ use Omnipay\EveryPay\Enums\PaymentState;
 use Omnipay\EveryPay\Enums\TokenAgreement;
 
 /**
- * Customer Initiated Transaction(CIT) Payments
+ * One-off Payments
  * @see https://support.every-pay.com/downloads/everypay_apiv4_integration_documentation.pdf
- * Page 26
+ * Page 18
  */
-class CitPaymentRequest extends AbstractRequest
+class OneOffPaymentRequest extends AbstractRequest
 {
     /**
-     * Payload for the POSt /payments/cit request
+     * Payload for the POSt /payments/oneoff request
      */
-    public function getData()
+    public function getData(): array
     {
         $baseData = $this->getBaseData();
 
@@ -35,7 +35,6 @@ class CitPaymentRequest extends AbstractRequest
 
             'amount' => $this->getAmount(),
             'order_reference' => $this->getTransactionId(),
-            'token_agreement' => TokenAgreement::UNSCHEDULED,
         ];
 
         if ($this->getEmail()) {
@@ -46,27 +45,30 @@ class CitPaymentRequest extends AbstractRequest
             $data['customer_ip'] = $this->getClientIp();
         }
 
+        if ($this->getSaveCard()) {
+            $data['request_token'] = true;
+            $data['token_consent_agreed'] = true;
+            $data['token_agreement'] = TokenAgreement::UNSCHEDULED;
+        }
+
         return array_merge($baseData, $data);
     }
 
     /**
      * Payload for the POST /payments/charge request
      */
-    public function getChargeData($paymentReference)
+    public function getChargeData($paymentReference): array
     {
         $baseData = $this->getBaseData();
 
         $data = [
             'payment_reference' => $paymentReference,
-            'token_details' => [
-                'token' => $this->getCardReference(),
-            ],
         ];
 
         return array_merge($baseData, $data);
     }
 
-    protected function createResponse($response)
+    protected function createResponse($response): OneOffPaymentResponse
     {
         $status = $response->getStatusCode();
         $body = $response->getBody()->getContents();
@@ -74,26 +76,26 @@ class CitPaymentRequest extends AbstractRequest
 
         $data = compact('status', 'body');
 
-        return $this->response = new CitPaymentResponse($this, $data);
+        return $this->response = new OneOffPaymentResponse($this, $data);
     }
 
-    public function sendData($data)
+    public function sendData($data): OneOffPaymentResponse
     {
         $response = $this->httpClient->request(
             'POST',
-            $this->getEndpoint() . '/payments/cit',
+            $this->getEndpoint() . '/payments/oneoff',
             $this->getHeaders(),
             json_encode($data)
         );
 
         $payment = @json_decode($response->getBody()->getContents(), true);
 
-        if (!is_array($payment)) {
-            return $this->response = CitPaymentResponse::error($this, 'Unrecognized response format');
+        if (! is_array($payment)) {
+            return $this->response = OneOffPaymentResponse::error($this, 'Unrecognized response format');
         }
 
         if (isset($payment['error'])) {
-            return $this->response = CitPaymentResponse::error(
+            return $this->response = OneOffPaymentResponse::error(
                 $this,
                 sprintf(
                     '%d - %s',
@@ -104,42 +106,15 @@ class CitPaymentRequest extends AbstractRequest
         }
 
         if ($payment['payment_state'] !== PaymentState::INITIAL) {
-            return $this->response = CitPaymentResponse::error(
+            return $this->response = OneOffPaymentResponse::error(
                 $this,
                 'Unexpected payment state - ' . $payment['payment_state']
             );
         }
 
-        // Ok, we created the payment, let's attempt a charge:
-        $response = $this->httpClient->request(
-            'POST',
-            $this->getEndpoint() . '/payments/charge',
-            $this->getHeaders(),
-            json_encode($this->getChargeData(
-                $payment['payment_reference']
-            ))
-        );
-
-        $charge = @json_decode($response->getBody()->getContents(), true);
-
-        if (! is_array($charge)) {
-            return $this->response = CitPaymentResponse::error($this, 'Unrecognized response format');
-        }
-
-        if (isset($charge['error'])) {
-            return $this->response = CitPaymentResponse::error(
-                $this,
-                sprintf(
-                    '%d - %s',
-                    $charge['error']['code'],
-                    $charge['error']['message']
-                )
-            );
-        }
-
-        return $this->response = new CitPaymentResponse(
+        return $this->response = new OneOffPaymentResponse(
             $this,
-            $charge
+            $payment
         );
     }
 }

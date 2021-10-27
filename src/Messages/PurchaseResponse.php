@@ -5,7 +5,6 @@ use Omnipay\EveryPay\Support\SignedData;
 use Omnipay\Common\Message\AbstractResponse;
 use Omnipay\Common\Message\RequestInterface;
 use Omnipay\EveryPay\Support\SignedDataOptions;
-use Omnipay\EveryPay\Concerns\CustomRedirectHtml;
 use Omnipay\Common\Message\RedirectResponseInterface;
 
 /**
@@ -13,7 +12,6 @@ use Omnipay\Common\Message\RedirectResponseInterface;
  */
 class PurchaseResponse extends AbstractResponse implements RedirectResponseInterface
 {
-    use CustomRedirectHtml;
 
     public function __construct(RequestInterface $request, $data)
     {

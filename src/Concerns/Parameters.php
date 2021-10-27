@@ -1,4 +1,5 @@
 <?php
+
 namespace Omnipay\EveryPay\Concerns;
 
 trait Parameters
@@ -11,6 +12,7 @@ trait Parameters
             'accountName' => getenv('EVERY_PAY_ACCOUNT_NAME'), // processing account
             'testMode' => true,
             'locale' => 'et',
+            'saveCard' => false,
         ];
     }
 
@@ -101,5 +103,15 @@ trait Parameters
     public function setClientIp($ip)
     {
         return $this->setParameter('user_ip', $ip);
+    }
+
+    public function getSaveCard()
+    {
+        return $this->getParameter('saveCard');
+    }
+
+    public function setSaveCard($saveCard)
+    {
+        return $this->setParameter('saveCard', $saveCard);
     }
 }

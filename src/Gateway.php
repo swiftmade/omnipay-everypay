@@ -6,6 +6,7 @@ use Omnipay\Common\AbstractGateway;
 use Omnipay\EveryPay\Enums\PaymentType;
 use Omnipay\EveryPay\Support\SignedData;
 use Omnipay\EveryPay\Messages\CitPaymentRequest;
+use Omnipay\EveryPay\Messages\OneOffPaymentRequest;
 use Omnipay\EveryPay\Messages\CompletePurchaseRequest;
 
 class Gateway extends AbstractGateway
@@ -22,12 +23,13 @@ class Gateway extends AbstractGateway
         return SignedData::make($data, $this->getSecret());
     }
 
-    public function purchase(array $parameters = [])
+    public function purchase(array $options = [])
     {
         // By default, create one-off payment.
-        $paymentType = $parameters['paymentType'] ?? PaymentType::ONE_OFF;
+        $paymentType = $options['paymentType'] ?? PaymentType::ONE_OFF;
 
         $implementations = [
+            PaymentType::ONE_OFF => OneOffPaymentRequest::class,
             PaymentType::CIT => CitPaymentRequest::class,
         ];
 
@@ -41,12 +43,12 @@ class Gateway extends AbstractGateway
 
         return $this->createRequest(
             $implementations[$paymentType],
-            $parameters
+            $options
         );
     }
 
-    public function completePurchase(array $parameters = [])
+    public function completePurchase(array $options = [])
     {
-        return $this->createRequest(CompletePurchaseRequest::class, $parameters);
+        return $this->createRequest(CompletePurchaseRequest::class, $options);
     }
 }
