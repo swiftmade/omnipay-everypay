@@ -2,7 +2,9 @@
 
 namespace Omnipay\EveryPay\Messages;
 
+use Omnipay\EveryPay\Common\CardToken;
 use Omnipay\EveryPay\Enums\PaymentState;
+use Omnipay\EveryPay\Common\TokenizedCard;
 use Omnipay\Common\Message\AbstractResponse;
 use Omnipay\Common\Message\RequestInterface;
 use Omnipay\Common\Message\RedirectResponseInterface;
@@ -110,5 +112,14 @@ class PurchaseResponse extends AbstractResponse implements RedirectResponseInter
     public function getTransactionReference()
     {
         return $this->data['payment_reference'] ?? null;
+    }
+
+    public function getTokenizedCard(): ?TokenizedCard
+    {
+        if (! isset($this->data['cc_details'])) {
+            return null;
+        }
+
+        return TokenizedCard::make($this->data['cc_details']);
     }
 }

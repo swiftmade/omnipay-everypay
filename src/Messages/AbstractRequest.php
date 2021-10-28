@@ -55,13 +55,13 @@ abstract class AbstractRequest extends BaseAbstractRequest
         ];
     }
 
-    protected function httpRequest($method, $uri, array $headers, array $data): array
+    protected function httpRequest($method, $uri, array $headers, $data = null): array
     {
         $response = $this->httpClient->request(
             $method,
             $uri,
             $headers,
-            json_encode($data)
+            $data ? json_encode($data) : null,
         );
 
         $data = @json_decode($response->getBody()->getContents(), true);
