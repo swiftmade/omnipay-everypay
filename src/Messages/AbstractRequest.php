@@ -1,7 +1,9 @@
 <?php
+
 namespace Omnipay\EveryPay\Messages;
 
 use Omnipay\EveryPay\Concerns\Parameters;
+use Omnipay\Common\Exception\InvalidResponseException;
 use Omnipay\Common\Message\AbstractRequest as BaseAbstractRequest;
 
 /**
@@ -51,6 +53,34 @@ abstract class AbstractRequest extends BaseAbstractRequest
                 sprintf('%s:%s', $this->getUsername(), $this->getSecret())
             ),
         ];
+    }
+
+    protected function httpRequest($method, $uri, array $headers, array $data): array
+    {
+        $response = $this->httpClient->request(
+            $method,
+            $uri,
+            $headers,
+            json_encode($data)
+        );
+
+        $data = @json_decode($response->getBody()->getContents(), true);
+
+        if (! $data || ! is_array($data)) {
+            throw new InvalidResponseException(
+                'Unrecognized error format.',
+                $response->getStatusCode()
+            );
+        }
+
+        if (isset($data['error'])) {
+            throw new InvalidResponseException(
+                $data['error']['message'],
+                $data['error']['code']
+            );
+        }
+
+        return $data;
     }
 
     protected function createResponse($data)

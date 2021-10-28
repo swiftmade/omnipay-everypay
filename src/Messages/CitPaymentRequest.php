@@ -4,6 +4,7 @@ namespace Omnipay\EveryPay\Messages;
 
 use Omnipay\EveryPay\Enums\PaymentState;
 use Omnipay\EveryPay\Enums\TokenAgreement;
+use Omnipay\Common\Exception\InvalidResponseException;
 
 /**
  * Customer Initiated Transaction(CIT) Payments
@@ -79,63 +80,28 @@ class CitPaymentRequest extends AbstractRequest
 
     public function sendData($data)
     {
-        $response = $this->httpClient->request(
+        $payment = $this->httpRequest(
             'POST',
             $this->getEndpoint() . '/payments/cit',
             $this->getHeaders(),
-            json_encode($data)
+            $data
         );
 
-        $payment = @json_decode($response->getBody()->getContents(), true);
-
-        if (!is_array($payment)) {
-            return $this->response = CitPaymentResponse::error($this, 'Unrecognized response format');
-        }
-
-        if (isset($payment['error'])) {
-            return $this->response = CitPaymentResponse::error(
-                $this,
-                sprintf(
-                    '%d - %s',
-                    $payment['error']['code'],
-                    $payment['error']['message']
-                )
-            );
-        }
-
         if ($payment['payment_state'] !== PaymentState::INITIAL) {
-            return $this->response = CitPaymentResponse::error(
-                $this,
+            throw new InvalidResponseException(
                 'Unexpected payment state - ' . $payment['payment_state']
             );
         }
 
         // Ok, we created the payment, let's attempt a charge:
-        $response = $this->httpClient->request(
+        $charge = $this->httpRequest(
             'POST',
             $this->getEndpoint() . '/payments/charge',
             $this->getHeaders(),
-            json_encode($this->getChargeData(
+            $this->getChargeData(
                 $payment['payment_reference']
-            ))
+            )
         );
-
-        $charge = @json_decode($response->getBody()->getContents(), true);
-
-        if (! is_array($charge)) {
-            return $this->response = CitPaymentResponse::error($this, 'Unrecognized response format');
-        }
-
-        if (isset($charge['error'])) {
-            return $this->response = CitPaymentResponse::error(
-                $this,
-                sprintf(
-                    '%d - %s',
-                    $charge['error']['code'],
-                    $charge['error']['message']
-                )
-            );
-        }
 
         return $this->response = new CitPaymentResponse(
             $this,

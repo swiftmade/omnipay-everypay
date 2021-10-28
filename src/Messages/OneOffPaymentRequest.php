@@ -4,6 +4,7 @@ namespace Omnipay\EveryPay\Messages;
 
 use Omnipay\EveryPay\Enums\PaymentState;
 use Omnipay\EveryPay\Enums\TokenAgreement;
+use Omnipay\Common\Exception\InvalidResponseException;
 
 /**
  * One-off Payments
@@ -54,60 +55,17 @@ class OneOffPaymentRequest extends AbstractRequest
         return array_merge($baseData, $data);
     }
 
-    /**
-     * Payload for the POST /payments/charge request
-     */
-    public function getChargeData($paymentReference): array
-    {
-        $baseData = $this->getBaseData();
-
-        $data = [
-            'payment_reference' => $paymentReference,
-        ];
-
-        return array_merge($baseData, $data);
-    }
-
-    protected function createResponse($response): OneOffPaymentResponse
-    {
-        $status = $response->getStatusCode();
-        $body = $response->getBody()->getContents();
-        $body = @json_decode($body, true);
-
-        $data = compact('status', 'body');
-
-        return $this->response = new OneOffPaymentResponse($this, $data);
-    }
-
     public function sendData($data): OneOffPaymentResponse
     {
-        $response = $this->httpClient->request(
+        $payment = $this->httpRequest(
             'POST',
             $this->getEndpoint() . '/payments/oneoff',
             $this->getHeaders(),
-            json_encode($data)
+            $data
         );
 
-        $payment = @json_decode($response->getBody()->getContents(), true);
-
-        if (! is_array($payment)) {
-            return $this->response = OneOffPaymentResponse::error($this, 'Unrecognized response format');
-        }
-
-        if (isset($payment['error'])) {
-            return $this->response = OneOffPaymentResponse::error(
-                $this,
-                sprintf(
-                    '%d - %s',
-                    $payment['error']['code'],
-                    $payment['error']['message']
-                )
-            );
-        }
-
         if ($payment['payment_state'] !== PaymentState::INITIAL) {
-            return $this->response = OneOffPaymentResponse::error(
-                $this,
+            throw new InvalidResponseException(
                 'Unexpected payment state - ' . $payment['payment_state']
             );
         }
