@@ -2,7 +2,6 @@
 
 namespace Omnipay\EveryPay\Messages;
 
-use Omnipay\EveryPay\Common\CardToken;
 use Omnipay\EveryPay\Enums\PaymentState;
 use Omnipay\EveryPay\Common\TokenizedCard;
 use Omnipay\Common\Message\AbstractResponse;
