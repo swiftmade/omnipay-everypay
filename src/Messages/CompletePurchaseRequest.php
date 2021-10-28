@@ -3,16 +3,6 @@ namespace Omnipay\EveryPay\Messages;
 
 class CompletePurchaseRequest extends AbstractRequest
 {
-    public function setPayment($payment)
-    {
-        return $this->setParameter('payment', $payment);
-    }
-
-    public function getPayment()
-    {
-        return $this->getParameter('payment');
-    }
-
     public function getData()
     {
         $this->validate('payment');

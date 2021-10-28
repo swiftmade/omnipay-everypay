@@ -55,24 +55,36 @@ class OneOffPaymentRequest extends AbstractRequest
         return array_merge($baseData, $data);
     }
 
-    public function sendData($data): OneOffPaymentResponse
+    public function sendData($data): PurchaseResponse
     {
-        $payment = $this->httpRequest(
-            'POST',
-            $this->getEndpoint() . '/payments/oneoff',
-            $this->getHeaders(),
-            $data
-        );
+        try {
+            $payment = $this->httpRequest(
+                'POST',
+                $this->getEndpoint() . '/payments/oneoff',
+                $this->getHeaders(),
+                $data
+            );
 
-        if ($payment['payment_state'] !== PaymentState::INITIAL) {
-            throw new InvalidResponseException(
-                'Unexpected payment state - ' . $payment['payment_state']
+            if ($payment['payment_state'] !== PaymentState::INITIAL) {
+                throw new InvalidResponseException(
+                    'Unexpected payment state - ' . $payment['payment_state']
+                );
+            }
+
+            return $this->response = new PurchaseResponse(
+                $this,
+                $payment
+            );
+        } catch (InvalidResponseException $e) {
+            return $this->response = new PurchaseResponse(
+                $this,
+                [
+                    'error' => [
+                        'message' => $e->getMessage(),
+                        'code' => $e->getCode(),
+                    ],
+                ]
             );
         }
-
-        return $this->response = new OneOffPaymentResponse(
-            $this,
-            $payment
-        );
     }
 }

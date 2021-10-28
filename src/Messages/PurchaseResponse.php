@@ -1,10 +1,10 @@
 <?php
+
 namespace Omnipay\EveryPay\Messages;
 
-use Omnipay\EveryPay\Support\SignedData;
+use Omnipay\EveryPay\Enums\PaymentState;
 use Omnipay\Common\Message\AbstractResponse;
 use Omnipay\Common\Message\RequestInterface;
-use Omnipay\EveryPay\Support\SignedDataOptions;
 use Omnipay\Common\Message\RedirectResponseInterface;
 
 /**
@@ -12,42 +12,103 @@ use Omnipay\Common\Message\RedirectResponseInterface;
  */
 class PurchaseResponse extends AbstractResponse implements RedirectResponseInterface
 {
+    protected $failed = false;
+    protected $message = null;
 
     public function __construct(RequestInterface $request, $data)
     {
-        $this->request = $request;
-        $this->data = $data;
+        parent::__construct($request, $data);
+
+        $this->validateData();
     }
 
-    public function isSuccessful()
+    protected function validateData()
     {
-        return false;
+        $this->message = 'Payment state - ' . $this->data['payment_state'];
+
+        if (! $this->data) {
+            $this->fail('Missing data!');
+        } elseif (isset($this->data['error'])) {
+            $this->fail($this->data['error']['message']);
+        } elseif ($this->getTransactionId() !== $this->request->getTransactionId()) {
+            $this->fail(sprintf(
+                'Transaction ID (order_reference) mismatch. Request: %s, Response: %s',
+                $this->request->getTransactionId(),
+                $this->getTransactionId()
+            ));
+        }
     }
 
-    public function isRedirect()
+    protected function fail($message)
     {
-        return true;
+        $this->failed = true;
+        $this->message = $message;
     }
 
-    public function getRedirectMethod()
+    public function getMessage(): ?string
     {
-        return 'POST';
+        return $this->message;
     }
 
-    public function getRedirectData()
+    protected function getPaymentState()
     {
-        return SignedData::make(
-            $this->data,
-            SignedDataOptions::gateway(
-                $this->request->getSecret()
-            )
+        return $this->data['payment_state'] ?? null;
+    }
+
+    public function isSuccessful(): bool
+    {
+        if ($this->failed) {
+            return false;
+        }
+
+        return in_array(
+            $this->getPaymentState(),
+            [
+                PaymentState::AUTHORISED,
+                PaymentState::SETTLED,
+            ]
         );
+    }
+
+    public function isPending(): bool
+    {
+        if ($this->failed) {
+            return false;
+        }
+
+        return $this->getPaymentState() === PaymentState::SENT_FOR_PROCESSING;
+    }
+
+    public function isRedirect(): bool
+    {
+        if ($this->failed) {
+            return false;
+        }
+
+        return ! $this->isSuccessful() && isset($this->data['payment_link']);
     }
 
     public function getRedirectUrl()
     {
-        return $this->request->getTestMode()
-            ? 'https://igw-demo.every-pay.com/transactions/'
-            : 'https://pay.every-pay.eu/transactions/';
+        return $this->data['payment_link'];
+    }
+
+    public function isCancelled(): bool
+    {
+        if ($this->failed) {
+            return false;
+        }
+
+        return $this->getPaymentState() === PaymentState::ABANDONED;
+    }
+
+    public function getTransactionId()
+    {
+        return $this->data['order_reference'] ?? null;
+    }
+
+    public function getTransactionReference()
+    {
+        return $this->data['payment_reference'] ?? null;
     }
 }

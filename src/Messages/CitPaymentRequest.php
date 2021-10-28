@@ -67,45 +67,46 @@ class CitPaymentRequest extends AbstractRequest
         return array_merge($baseData, $data);
     }
 
-    protected function createResponse($response)
+    public function sendData($data): PurchaseResponse
     {
-        $status = $response->getStatusCode();
-        $body = $response->getBody()->getContents();
-        $body = @json_decode($body, true);
+        try {
+            $payment = $this->httpRequest(
+                'POST',
+                $this->getEndpoint() . '/payments/cit',
+                $this->getHeaders(),
+                $data
+            );
 
-        $data = compact('status', 'body');
+            if ($payment['payment_state'] !== PaymentState::INITIAL) {
+                throw new InvalidResponseException(
+                    'Unexpected payment state - ' . $payment['payment_state']
+                );
+            }
 
-        return $this->response = new CitPaymentResponse($this, $data);
-    }
+            // Ok, we created the payment, let's attempt a charge:
+            $charge = $this->httpRequest(
+                'POST',
+                $this->getEndpoint() . '/payments/charge',
+                $this->getHeaders(),
+                $this->getChargeData(
+                    $payment['payment_reference']
+                )
+            );
 
-    public function sendData($data)
-    {
-        $payment = $this->httpRequest(
-            'POST',
-            $this->getEndpoint() . '/payments/cit',
-            $this->getHeaders(),
-            $data
-        );
-
-        if ($payment['payment_state'] !== PaymentState::INITIAL) {
-            throw new InvalidResponseException(
-                'Unexpected payment state - ' . $payment['payment_state']
+            return $this->response = new PurchaseResponse(
+                $this,
+                $charge
+            );
+        } catch (InvalidResponseException $e) {
+            return $this->response = new PurchaseResponse(
+                $this,
+                [
+                    'error' => [
+                        'message' => $e->getMessage(),
+                        'code' => $e->getCode(),
+                    ],
+                ]
             );
         }
-
-        // Ok, we created the payment, let's attempt a charge:
-        $charge = $this->httpRequest(
-            'POST',
-            $this->getEndpoint() . '/payments/charge',
-            $this->getHeaders(),
-            $this->getChargeData(
-                $payment['payment_reference']
-            )
-        );
-
-        return $this->response = new CitPaymentResponse(
-            $this,
-            $charge
-        );
     }
 }
