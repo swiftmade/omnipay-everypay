@@ -59,6 +59,74 @@ class PurchaseResponseTest extends TestCase
         $this->assertFalse($response->isSuccessful());
     }
 
+    public function testDoesNotRedirectIfPaymentSucceeded()
+    {
+        $gateway = new Gateway();
+        $mockRequest = Mockery::mock($gateway->purchase());
+        $mockRequest->setTransactionId('x');
+
+        $response = new PurchaseResponse(
+            $mockRequest,
+            [
+                'order_reference' => 'x',
+                'payment_state' => PaymentState::SETTLED,
+                'payment_link' => 'abc',
+            ]
+        );
+
+        $this->assertFalse($response->failed);
+        $this->assertFalse($response->isRedirect());
+    }
+
+    public function testRedirects()
+    {
+        $gateway = new Gateway();
+        $mockRequest = Mockery::mock($gateway->purchase());
+        $mockRequest->setTransactionId('x');
+
+        $response = new PurchaseResponse(
+            $mockRequest,
+            [
+                'order_reference' => 'x',
+                'payment_state' => PaymentState::WAITING_FOR_3DS_RESPONSE,
+                'payment_link' => 'abc',
+            ]
+        );
+
+        $this->assertFalse($response->failed);
+        $this->assertTrue($response->isRedirect());
+    }
+
+    /**
+     * @dataProvider successfulPaymentStates
+     */
+    public function testSuccessful($state)
+    {
+        $gateway = new Gateway();
+        $mockRequest = Mockery::mock($gateway->purchase());
+        $mockRequest->setTransactionId('x');
+
+        $response = new PurchaseResponse(
+            $mockRequest,
+            [
+                'order_reference' => 'x',
+                'payment_state' => $state,
+                'payment_link' => null,
+            ]
+        );
+
+        $this->assertFalse($response->failed);
+        $this->assertTrue($response->isSuccessful());
+    }
+
+    public function successfulPaymentStates(): array
+    {
+        return [
+            [PaymentState::SETTLED],
+            [PaymentState::AUTHORISED],
+        ];
+    }
+
     public function testReturnsTransactionId()
     {
         $gateway = new Gateway();

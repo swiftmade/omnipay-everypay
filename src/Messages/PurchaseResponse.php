@@ -13,7 +13,8 @@ use Omnipay\Common\Message\RedirectResponseInterface;
  */
 class PurchaseResponse extends AbstractResponse implements RedirectResponseInterface
 {
-    protected $failed = false;
+    public $failed = false;
+
     protected $message = null;
     protected $code = null;
 
