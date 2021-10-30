@@ -115,7 +115,7 @@ class PurchaseResponse extends AbstractResponse implements RedirectResponseInter
 
     public function getTokenizedCard(): ?TokenizedCard
     {
-        if (! isset($this->data['cc_details'])) {
+        if (! isset($this->data['cc_details'], $this->data['cc_details']['token'])) {
             return null;
         }
 
