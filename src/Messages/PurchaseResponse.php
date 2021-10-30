@@ -15,6 +15,7 @@ class PurchaseResponse extends AbstractResponse implements RedirectResponseInter
 {
     protected $failed = false;
     protected $message = null;
+    protected $code = null;
 
     public function __construct(RequestInterface $request, $data)
     {
@@ -25,30 +26,49 @@ class PurchaseResponse extends AbstractResponse implements RedirectResponseInter
 
     protected function validateData()
     {
-        $this->message = 'Payment state - ' . $this->data['payment_state'];
-
         if (! $this->data) {
             $this->fail('Missing data!');
-        } elseif (isset($this->data['error'])) {
-            $this->fail($this->data['error']['message']);
-        } elseif ($this->getTransactionId() !== $this->request->getTransactionId()) {
+
+            return;
+        }
+
+        if (isset($this->data['error'])) {
+            $this->fail(
+                $this->data['error']['message'],
+                $this->data['error']['code'] ?? null
+            );
+
+            return;
+        }
+
+        if ($this->getTransactionId() !== $this->request->getTransactionId()) {
             $this->fail(sprintf(
                 'Transaction ID (order_reference) mismatch. Request: %s, Response: %s',
                 $this->request->getTransactionId(),
                 $this->getTransactionId()
             ));
+
+            return;
         }
+
+        $this->message = 'Payment state - ' . $this->data['payment_state'];
     }
 
-    protected function fail($message)
+    protected function fail($message, $code = null)
     {
         $this->failed = true;
+        $this->code = $code;
         $this->message = $message;
     }
 
     public function getMessage(): ?string
     {
         return $this->message;
+    }
+
+    public function getCode()
+    {
+        return $this->code;
     }
 
     protected function getPaymentState()

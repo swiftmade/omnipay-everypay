@@ -17,12 +17,20 @@ class TokenizedCard extends CreditCard
      */
     public static function make(array $payload)
     {
+        // Card type. Possible values are ‘visa’ or ‘master_card’.
+        $brands = [
+            'visa' => self::BRAND_VISA,
+            'master_card' => self::BRAND_MASTERCARD,
+        ];
+
+        $brand = $brands[$payload['type']] ?? null;
+
         $card = new TokenizedCard([
-            'brand' => $payload['type'],
-            'name' => $payload['holder_name'],
-            'number' => $payload['last_four_digits'],
-            'expiryYear' => $payload['year'],
-            'expiryMonth' => $payload['month'],
+            'brand' => $brand,
+            'name' => $payload['holder_name'] ?? null,
+            'number' => $payload['last_four_digits'] ?? null,
+            'expiryYear' => (int) $payload['year'],
+            'expiryMonth' => (int) $payload['month'],
         ]);
 
         $card->setToken($payload['token']);
