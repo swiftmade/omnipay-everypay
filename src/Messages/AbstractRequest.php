@@ -61,7 +61,7 @@ abstract class AbstractRequest extends BaseAbstractRequest
             $method,
             $uri,
             $headers,
-            $data ? json_encode($data) : null,
+            $data ? json_encode($data) : null
         );
 
         $data = @json_decode($response->getBody()->getContents(), true);
