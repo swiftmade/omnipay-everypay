@@ -6,6 +6,7 @@ use Omnipay\Common\AbstractGateway;
 use Omnipay\EveryPay\Enums\PaymentType;
 use Omnipay\EveryPay\Support\SignedData;
 use Omnipay\EveryPay\Messages\CitPaymentRequest;
+use Omnipay\EveryPay\Messages\MitPaymentRequest;
 use Omnipay\EveryPay\Messages\OneOffPaymentRequest;
 use Omnipay\EveryPay\Messages\CompletePurchaseRequest;
 
@@ -31,6 +32,7 @@ class Gateway extends AbstractGateway
         $implementations = [
             PaymentType::ONE_OFF => OneOffPaymentRequest::class,
             PaymentType::CIT => CitPaymentRequest::class,
+            PaymentType::MIT => MitPaymentRequest::class,
         ];
 
         if (! isset($implementations[$paymentType])) {
