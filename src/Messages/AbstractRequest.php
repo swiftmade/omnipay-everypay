@@ -1,7 +1,9 @@
 <?php
+
 namespace Omnipay\EveryPay\Messages;
 
 use Omnipay\EveryPay\Concerns\Parameters;
+use Omnipay\Common\Exception\InvalidResponseException;
 use Omnipay\Common\Message\AbstractRequest as BaseAbstractRequest;
 
 /**
@@ -12,8 +14,8 @@ abstract class AbstractRequest extends BaseAbstractRequest
 {
     use Parameters;
 
-    protected $liveEndpoint = 'https://pay.every-pay.eu/transactions/';
-    protected $testEndpoint = 'https://igw-demo.every-pay.com/transactions/';
+    protected $liveEndpoint = 'https://pay.every-pay.eu/api/v4';
+    protected $testEndpoint = 'https://igw-demo.every-pay.com/api/v4';
 
     public function getEndpoint()
     {
@@ -22,21 +24,60 @@ abstract class AbstractRequest extends BaseAbstractRequest
 
     protected function getBaseData()
     {
-        $data = [
+        return [
+            /**
+             * The api_username of the Merchant sending the request.
+             * Must match with username in the Authorization HTTP header.
+             */
             'api_username' => $this->getUsername(),
-            'account_id' => $this->getAccountId(),
-            'nonce' => uniqid(true),
-            'timestamp' => time(),
-            'customer_url' => $this->getCustomerUrl(),
-            'callback_url' => $this->getCallbackUrl(),
-        ];
 
-        if ($ip = $this->getClientIp()) {
-            $data['user_ip'] = $ip;
+            /**
+             * Unique string to prevent replay attacks
+             */
+            'nonce' => uniqid(true),
+
+            /**
+             * The timestamp field represents the time of the request.
+             * The request will be rejected if the provided timestamp is outside of an allowed time-window.
+             */
+            'timestamp' => date('c'),
+        ];
+    }
+
+    protected function getHeaders()
+    {
+        return [
+            'Accept' => 'application/json',
+            'Content-Type' => 'application/json',
+            'Authorization' => 'Basic ' . base64_encode(
+                sprintf('%s:%s', $this->getUsername(), $this->getSecret())
+            ),
+        ];
+    }
+
+    protected function httpRequest($method, $uri, array $headers, $data = null): array
+    {
+        $response = $this->httpClient->request(
+            $method,
+            $uri,
+            $headers,
+            $data ? json_encode($data) : null
+        );
+
+        $data = @json_decode($response->getBody()->getContents(), true);
+
+        if (! $data || ! is_array($data)) {
+            throw new InvalidResponseException(
+                'Unrecognized error format.',
+                $response->getStatusCode()
+            );
         }
 
-        if ($email = $this->getEmail()) {
-            $data['email'] = $email;
+        if (isset($data['error'])) {
+            throw new InvalidResponseException(
+                $data['error']['message'],
+                $data['error']['code']
+            );
         }
 
         return $data;
@@ -45,25 +86,5 @@ abstract class AbstractRequest extends BaseAbstractRequest
     protected function createResponse($data)
     {
         return $this->response = new Response($this, $data);
-    }
-
-    public function setCustomerUrl($url)
-    {
-        return $this->setParameter('customerUrl', $url);
-    }
-
-    public function getCustomerUrl()
-    {
-        return $this->getParameter('customerUrl');
-    }
-
-    public function setCallbackUrl($url)
-    {
-        return $this->setParameter('callbackUrl', $url);
-    }
-
-    public function getCallbackUrl()
-    {
-        return $this->getParameter('callbackUrl');
     }
 }

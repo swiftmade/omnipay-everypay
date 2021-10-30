@@ -4,11 +4,11 @@ _Disclaimer: This package is **not** an official package by EveryPay AS nor by o
 
 [EveryPay](https://every-pay.com/) is an Estonian payment provider, currently working with LHV and SEB banks.
 
-The package currently supports a limited set of essential features:
+The package currently supports a limited set of essential features in EveryPay v4:
 
-- Charge cards through the Gateway API (redirect)
-- Requesting card tokens (Gateway API only)
-- Token payments using Backend API
+- One-off payments
+- Requesting card tokens
+- One-click / CIT (Customer initiated Transactions) Payments
 
 ## Usage
 
@@ -22,28 +22,32 @@ Require the package using composer:
 $gateway = Omnipay::create('EveryPay')->initialize([
   'username' => '', // EveryPay api username
   'secret' => '', // EveryPay api secret
-  'accountId' => '', // merchant account ID
+  'accountName' => '', // merchant account ID
   'testMode' => true, // set to false for production!
   'locale' => 'en', // et=Estonian, see integration guide for more options.
 ]);
 ```
 
-### Process a purchase (Gateway)
+### One-off Purchase
 
 ```php
 $purchase = $gateway
-    ->purchase(['amount' => $amount])
-    ->setTransactionId(uniqid()) // unique order id for this purchase
+    ->purchase([
+        'amount' => $amount,
+        'paymentType' => PaymentType::ONE_OFF,
+    ])
+    ->setTransactionId($orderId) // unique order id for this purchase
+    ->setReturnUrl($customerUrl) // the url to redirect if the payment fails or gets cancelled
     ->setClientIp($_SERVER['REMOTE_ADDR']) // optional, helps fraud detection
-    ->setEmail('') // optional, helps fraud detection
-    ->setCallbackUrl($callbackUrl) // payment callback where payment result will be sent (with PUT)
-    ->setCustomerUrl($callbackUrl); // the url to redirect if the payment fails or gets cancelled
+    ->setEmail(''); // optional, helps fraud detection    
 
-// Uncomment if you want to make the payment using a previously stored card token
-// $purchase->setCardReference($token);
+// Use this, if you want to make the payment using a previously stored card token
+// Only applicable for MIT and CIT payment types.
+$purchase->setCardReference($token);
 
 // Uncomment if you want to store the card as a token after the payment
-// $purchase->setSaveCard(true);
+// (Only supported with One-off payment type)
+$purchase->setSaveCard(true);
 
 $response = $purchase->send();
 
@@ -53,14 +57,49 @@ $payment = $response->getData();
 return $response->redirect(); // this will return a self-submitting html form to EveryPay Gateway API
 ```
 
+### Customer Initiated Transaction (One-click payment)
+
+```php
+$purchase = $gateway
+    ->purchase([
+        'amount' => $amount,
+        'paymentType' => PaymentType::CIT,
+    ])
+    ->setTransactionId($orderId) // unique order id for this purchase
+    ->setCardReference('previously stored card token')
+    ->setReturnUrl($customerUrl)
+    ->setClientIp($_SERVER['REMOTE_ADDR']) // optional, helps fraud detection
+    ->setEmail(''); // optional, helps fraud detection
+
+$response = $purchase->send();
+
+// Store the payment response data if you wish.
+$payment = $response->getData();
+
+if ($response->isSuccessful()) {
+   // Payment done!
+} else if($response->isRedirect()) {
+   // 3DS Confirmation needed!
+   // Redirect the user to 3DS Page.
+   return $response->redirect(); 
+} else {
+  // Something went wrong!
+  // Check $response->getMessage();
+}
+```
+
 ### Complete Payment (handle Gateway redirect from EveryPay)
 
-EveryPay will return to your callback url with a `PUT` request once the payment is finalized.
-You need to validate this response and check if the payment succeeded.
+EveryPay will redirect the user to the `returnUrl` once the payment is finalized.
+You need to validate whether the payment went through.
 
 ```php
 // Here, pass the payment array that we previously stored when creating the payment
-$response = $gateway->completePurchase(['payment' => $payment])->send();
+$response = $gateway->completePurchase()
+    // These values are passed back to you by EveryPay
+    ->setTransactionId($_GET['payment_reference'])
+    ->setTransactionReference($_GET['order_reference'])
+    ->send();
 
 if (!$response->isSuccessful()) {
   // Payment failed!
@@ -76,26 +115,3 @@ if ($card = $response->getCardToken()) {
 }
 ```
 
-### Make a token payment (Backend)
-
-```php
-$purchase = $gateway
-    ->purchase(['amount' => $amount, 'backend' => true])
-    ->setClientIp($_SERVER['REMOTE_ADDR']) // optional, helps fraud detection
-    ->setEmail(''); // optional, helps fraud detection
-
-// Pass a valid card token here
-$purchase->setCardReference($token);
-
-$response = $purchase->send();
-
-// Store the payment response data if you wish.
-$payment = $response->getData();
-
-if ($response->isSuccessful()) {
-   // Payment done!
-} else {
-  // Something went wrong!
-  // Check $response->getMessage();
-}
-```

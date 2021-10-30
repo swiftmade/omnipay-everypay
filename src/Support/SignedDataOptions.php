@@ -39,12 +39,13 @@ class SignedDataOptions
                 $fields
             )
         );
+
         return $this;
     }
 
     public function shouldHmacInclude($field)
     {
-        return !in_array($field, $this->options['dontInclude']);
+        return ! in_array($field, $this->options['dontInclude']);
     }
 
     public function shouldAppendHmacFields()

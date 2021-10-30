@@ -1,10 +1,13 @@
 <?php
+
 namespace Omnipay\EveryPay;
 
 use Omnipay\Common\AbstractGateway;
+use Omnipay\EveryPay\Enums\PaymentType;
 use Omnipay\EveryPay\Support\SignedData;
-use Omnipay\EveryPay\Messages\PurchaseRequest;
-use Omnipay\EveryPay\Messages\BackendPurchaseRequest;
+use Omnipay\EveryPay\Messages\CitPaymentRequest;
+use Omnipay\EveryPay\Messages\MitPaymentRequest;
+use Omnipay\EveryPay\Messages\OneOffPaymentRequest;
 use Omnipay\EveryPay\Messages\CompletePurchaseRequest;
 
 class Gateway extends AbstractGateway
@@ -21,16 +24,33 @@ class Gateway extends AbstractGateway
         return SignedData::make($data, $this->getSecret());
     }
 
-    public function purchase(array $parameters = [])
+    public function purchase(array $options = [])
     {
-        if (isset($parameters['backend']) && $parameters['backend']) {
-            return $this->createRequest(BackendPurchaseRequest::class, $parameters);
+        // By default, create one-off payment.
+        $paymentType = $options['paymentType'] ?? PaymentType::ONE_OFF;
+
+        $implementations = [
+            PaymentType::ONE_OFF => OneOffPaymentRequest::class,
+            PaymentType::CIT => CitPaymentRequest::class,
+            PaymentType::MIT => MitPaymentRequest::class,
+        ];
+
+        if (! isset($implementations[$paymentType])) {
+            throw new \InvalidArgumentException(sprintf(
+                'Payment type is not implemented or invalid. (%s) Try one of these: %s',
+                $paymentType,
+                join(', ', array_keys($implementations))
+            ));
         }
-        return $this->createRequest(PurchaseRequest::class, $parameters);
+
+        return $this->createRequest(
+            $implementations[$paymentType],
+            $options
+        );
     }
 
-    public function completePurchase(array $parameters = [])
+    public function completePurchase(array $options = [])
     {
-        return $this->createRequest(CompletePurchaseRequest::class, $parameters);
+        return $this->createRequest(CompletePurchaseRequest::class, $options);
     }
 }
