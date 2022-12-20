@@ -36,14 +36,12 @@ class MitPaymentRequest extends AbstractRequest
             'amount' => $this->getAmount(),
             'order_reference' => $this->getTransactionId(),
             'token_agreement' => TokenAgreement::UNSCHEDULED,
+
+            'merchant_ip' => $this->getMerchantIp(),
         ];
 
         if ($this->getEmail()) {
             $data['email'] = $this->getEmail();
-        }
-
-        if ($this->getClientIp()) {
-            $data['customer_ip'] = $this->getClientIp();
         }
 
         return array_merge($baseData, $data);
