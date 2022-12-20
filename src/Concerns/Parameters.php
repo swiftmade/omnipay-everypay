@@ -2,6 +2,8 @@
 
 namespace Omnipay\EveryPay\Concerns;
 
+use RuntimeException;
+
 trait Parameters
 {
     public function getDefaultParameters()
@@ -103,6 +105,27 @@ trait Parameters
     public function setClientIp($ip)
     {
         return $this->setParameter('user_ip', $ip);
+    }
+
+    /**
+     * The IP of the Merchant server.
+     * This is only used for MIT payments (as Customer is not involved in the payment process).
+     * If no IP is set, it will default to
+     */
+    public function getMerchantIp()
+    {
+        if ($ip = $this->getParameter('merchant_ip')) {
+            return $ip;
+        } elseif (isset($_SERVER['SERVER_ADDR'])) {
+            return $_SERVER['SERVER_ADDR'];
+        } else {
+            throw new RuntimeException('Unable to determine merchant_ip.');
+        }
+    }
+
+    public function setMerchantIp($ip)
+    {
+        return $this->setParameter('merchant_ip', $ip);
     }
 
     public function getSaveCard()

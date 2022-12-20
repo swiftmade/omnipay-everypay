@@ -29,6 +29,21 @@ class EveryPayTest extends GatewayTestCase
         $this->assertSame('test@test.com', $this->gateway->getEmail());
     }
 
+    public function testClientIp()
+    {
+        $this->assertSame($this->gateway, $this->gateway->setClientIp('1.1.1.1'));
+        $this->assertSame('1.1.1.1', $this->gateway->getClientIp());
+    }
+
+    public function testMerchantIp()
+    {
+        $_SERVER['SERVER_ADDR'] = '1.1.1.1';
+
+        $this->assertSame('1.1.1.1', $this->gateway->getMerchantIp());
+        $this->assertSame($this->gateway, $this->gateway->setMerchantIp('2.2.2.2'));
+        $this->assertSame('2.2.2.2', $this->gateway->getMerchantIp());
+    }
+
     public function testSaveCard()
     {
         // Default is false
