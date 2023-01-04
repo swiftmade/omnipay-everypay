@@ -124,11 +124,17 @@ class PurchaseResponse extends AbstractResponse implements RedirectResponseInter
         return $this->getPaymentState() === PaymentState::ABANDONED;
     }
 
+    /**
+     * This is usually he ID of the payment record in your database.
+     */
     public function getTransactionId()
     {
         return $this->data['order_reference'] ?? null;
     }
 
+    /**
+     * This is the Payment Gateway’s reference to the transaction
+     */
     public function getTransactionReference()
     {
         return $this->data['payment_reference'] ?? null;
