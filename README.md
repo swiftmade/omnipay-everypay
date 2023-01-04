@@ -132,8 +132,6 @@ In EveryPay, when the payment will be captured is configured at the account leve
 
 To authorize a payment, simply substitue `purchase` and `completePurchase` methods with `authorize` and `completeAuthorize`. Then call `capture` to capture the funds.
 
-EveryPay will redirect the user to the `returnUrl` once the payment is finalized. You need to validate whether the payment went through.
-
 ```php
 // Here, pass the payment array that we previously stored when creating the payment
 $gateway->authorize([
