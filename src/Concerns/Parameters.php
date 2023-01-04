@@ -137,14 +137,4 @@ trait Parameters
     {
         return $this->setParameter('saveCard', $saveCard);
     }
-
-    public function getPaymentReference()
-    {
-        return $this->getParameter('paymentReference');
-    }
-
-    public function setPaymentReference($paymentReference)
-    {
-        return $this->setParameter('paymentReference', $paymentReference);
-    }
 }

@@ -10,14 +10,14 @@ class CaptureRequest extends AbstractRequest
     {
         $this->validate(
             'amount',
-            'paymentReference'
+            'transactionReference'
         );
 
         $baseData = $this->getBaseData();
 
         return array_merge($baseData, [
             'amount' => $this->getAmount(),
-            'payment_reference' => $this->getPaymentReference(),
+            'payment_reference' => $this->getTransactionReference(),
         ]);
     }
 
