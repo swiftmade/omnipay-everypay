@@ -21,7 +21,7 @@ class RefundRequest extends AbstractRequest
         ]);
     }
 
-    public function sendData($data): PurchaseResponse
+    public function sendData($data): RefundResponse
     {
         try {
             $payment = $this->httpRequest(
@@ -31,12 +31,12 @@ class RefundRequest extends AbstractRequest
                 $data
             );
 
-            return $this->response = new PurchaseResponse(
+            return $this->response = new RefundResponse(
                 $this,
                 $payment
             );
         } catch (InvalidResponseException $e) {
-            return $this->response = new PurchaseResponse(
+            return $this->response = new RefundResponse(
                 $this,
                 [
                     'error' => [

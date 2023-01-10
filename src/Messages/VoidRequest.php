@@ -9,18 +9,19 @@ class VoidRequest extends AbstractRequest
     public function getData()
     {
         $this->validate(
+            'reason',
             'transactionReference'
         );
 
         $baseData = $this->getBaseData();
 
         return array_merge($baseData, [
-            'payment_reference' => $this->getTransactionReference(),
             'reason' => $this->getReason(),
+            'payment_reference' => $this->getTransactionReference(),
         ]);
     }
 
-    public function sendData($data): PurchaseResponse
+    public function sendData($data): VoidResponse
     {
         try {
             $payment = $this->httpRequest(
@@ -30,12 +31,12 @@ class VoidRequest extends AbstractRequest
                 $data
             );
 
-            return $this->response = new PurchaseResponse(
+            return $this->response = new VoidResponse(
                 $this,
                 $payment
             );
         } catch (InvalidResponseException $e) {
-            return $this->response = new PurchaseResponse(
+            return $this->response = new VoidResponse(
                 $this,
                 [
                     'error' => [

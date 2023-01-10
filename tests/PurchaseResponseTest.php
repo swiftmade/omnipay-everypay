@@ -5,6 +5,7 @@ use PHPUnit\Framework\TestCase;
 use Omnipay\EveryPay\Enums\PaymentState;
 use Omnipay\EveryPay\Common\TokenizedCard;
 use Omnipay\EveryPay\Messages\PurchaseResponse;
+use Omnipay\EveryPay\Messages\OneOffPaymentRequest;
 
 class PurchaseResponseTest extends TestCase
 {
@@ -45,6 +46,9 @@ class PurchaseResponseTest extends TestCase
     public function testFailsIfTransactionIdsDontMatch()
     {
         $gateway = new Gateway();
+        /**
+         * @var OneOffPaymentRequest
+         */
         $mockRequest = Mockery::mock($gateway->purchase());
         $mockRequest->setTransactionId('x');
 
@@ -62,6 +66,9 @@ class PurchaseResponseTest extends TestCase
     public function testDoesNotRedirectIfPaymentSucceeded()
     {
         $gateway = new Gateway();
+        /**
+         * @var OneOffPaymentRequest
+         */
         $mockRequest = Mockery::mock($gateway->purchase());
         $mockRequest->setTransactionId('x');
 
@@ -81,6 +88,9 @@ class PurchaseResponseTest extends TestCase
     public function testRedirects()
     {
         $gateway = new Gateway();
+        /**
+         * @var OneOffPaymentRequest
+         */
         $mockRequest = Mockery::mock($gateway->purchase());
         $mockRequest->setTransactionId('x');
 
@@ -103,6 +113,9 @@ class PurchaseResponseTest extends TestCase
     public function testSuccessful($state)
     {
         $gateway = new Gateway();
+        /**
+         * @var OneOffPaymentRequest
+         */
         $mockRequest = Mockery::mock($gateway->purchase());
         $mockRequest->setTransactionId('x');
 
@@ -130,6 +143,9 @@ class PurchaseResponseTest extends TestCase
     public function testReturnsTransactionId()
     {
         $gateway = new Gateway();
+        /**
+         * @var OneOffPaymentRequest
+         */
         $mockRequest = Mockery::mock($gateway->purchase());
 
         $response = new PurchaseResponse(
@@ -149,6 +165,9 @@ class PurchaseResponseTest extends TestCase
     public function testReturnsTransactionReference()
     {
         $gateway = new Gateway();
+        /**
+         * @var OneOffPaymentRequest
+         */
         $mockRequest = Mockery::mock($gateway->purchase());
 
         $response = new PurchaseResponse(
@@ -168,6 +187,9 @@ class PurchaseResponseTest extends TestCase
     public function testReturnsTokenizedCard()
     {
         $gateway = new Gateway();
+        /**
+         * @var OneOffPaymentRequest
+         */
         $mockRequest = Mockery::mock($gateway->purchase());
 
         $response = new PurchaseResponse(
@@ -226,6 +248,9 @@ class PurchaseResponseTest extends TestCase
     public function testCardReturnsNullIfTokenIsMissing()
     {
         $gateway = new Gateway();
+        /**
+         * @var OneOffPaymentRequest
+         */
         $mockRequest = Mockery::mock($gateway->purchase());
 
         $response = new PurchaseResponse(
