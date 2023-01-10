@@ -5,6 +5,8 @@ namespace Omnipay\EveryPay;
 use Omnipay\Common\AbstractGateway;
 use Omnipay\EveryPay\Enums\PaymentType;
 use Omnipay\EveryPay\Support\SignedData;
+use Omnipay\EveryPay\Messages\VoidRequest;
+use Omnipay\EveryPay\Messages\RefundRequest;
 use Omnipay\EveryPay\Messages\CaptureRequest;
 use Omnipay\EveryPay\Messages\CitPaymentRequest;
 use Omnipay\EveryPay\Messages\MitPaymentRequest;
@@ -68,5 +70,15 @@ class Gateway extends AbstractGateway
     public function capture($options = [])
     {
         return $this->createRequest(CaptureRequest::class, $options);
+    }
+
+    public function refund($options = [])
+    {
+        return $this->createRequest(RefundRequest::class, $options);
+    }
+
+    public function void($options = [])
+    {
+        return $this->createRequest(VoidRequest::class, $options);
     }
 }
