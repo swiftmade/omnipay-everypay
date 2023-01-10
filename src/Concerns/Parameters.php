@@ -138,13 +138,13 @@ trait Parameters
         return $this->setParameter('saveCard', $saveCard);
     }
 
-    public function getReason()
+    public function getVoidReason()
     {
-        return $this->getParameter('reason');
+        return $this->getParameter('voidReason');
     }
 
-    public function setReason($reason)
+    public function setVoidReason($reason)
     {
-        return $this->setParameter('reason', $reason);
+        return $this->setParameter('voidReason', $reason);
     }
 }

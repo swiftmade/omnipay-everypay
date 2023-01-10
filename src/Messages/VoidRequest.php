@@ -9,14 +9,14 @@ class VoidRequest extends AbstractRequest
     public function getData()
     {
         $this->validate(
-            'reason',
+            'voidReason',
             'transactionReference'
         );
 
         $baseData = $this->getBaseData();
 
         return array_merge($baseData, [
-            'reason' => $this->getReason(),
+            'reason' => $this->getVoidReason(),
             'payment_reference' => $this->getTransactionReference(),
         ]);
     }
