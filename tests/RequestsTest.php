@@ -19,6 +19,12 @@ class RequestsTest extends TestCase
 
         $this->assertInstanceOf(OneOffPaymentRequest::class, $gateway->purchase());
 
+        $purchaseRequest = $gateway->purchase();
+        $requestData = $purchaseRequest->getData();
+
+        $this->assertArrayHasKey('api_username', $requestData);
+        $this->assertSame('en', $requestData['locale']);
+
         $this->assertInstanceOf(OneOffPaymentRequest::class, $gateway->purchase([
             'paymentType' => PaymentType::ONE_OFF,
         ]));

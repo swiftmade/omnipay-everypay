@@ -36,7 +36,6 @@ class OneOffPaymentRequest extends AbstractRequest
 
             'amount' => $this->getAmount(),
             'order_reference' => $this->getTransactionId(),
-            'locale' => $this->getLocale()
         ];
 
         if ($this->getEmail()) {

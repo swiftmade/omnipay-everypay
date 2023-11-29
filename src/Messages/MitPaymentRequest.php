@@ -38,7 +38,6 @@ class MitPaymentRequest extends AbstractRequest
             'token_agreement' => TokenAgreement::UNSCHEDULED,
 
             'merchant_ip' => $this->getMerchantIp(),
-            'locale' => $this->getLocale()
         ];
 
         if ($this->getEmail()) {
