@@ -13,7 +13,7 @@ trait Parameters
             'secret' => getenv('EVERY_PAY_API_SECRET'), // api_secret
             'accountName' => getenv('EVERY_PAY_ACCOUNT_NAME'), // processing account
             'testMode' => true,
-            'locale' => 'et',
+            'locale' => 'en',
             'saveCard' => false,
         ];
     }
