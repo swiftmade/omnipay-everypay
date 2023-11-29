@@ -41,6 +41,11 @@ abstract class AbstractRequest extends BaseAbstractRequest
              * The request will be rejected if the provided timestamp is outside of an allowed time-window.
              */
             'timestamp' => date('c'),
+
+            /**
+             * Locale
+             */
+            'locale' => $this->getLocale(),
         ];
     }
 
@@ -66,7 +71,7 @@ abstract class AbstractRequest extends BaseAbstractRequest
 
         $data = @json_decode($response->getBody()->getContents(), true);
 
-        if (! $data || ! is_array($data)) {
+        if (!$data || !is_array($data)) {
             throw new InvalidResponseException(
                 'Unrecognized error format.',
                 $response->getStatusCode()
