@@ -37,6 +37,7 @@ class CitPaymentRequest extends AbstractRequest
             'amount' => $this->getAmount(),
             'order_reference' => $this->getTransactionId(),
             'token_agreement' => TokenAgreement::UNSCHEDULED,
+            'locale' => $this->getLocale()
         ];
 
         if ($this->getEmail()) {
