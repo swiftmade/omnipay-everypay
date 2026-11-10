@@ -38,6 +38,17 @@ class RequestsTest extends TestCase
         ]));
     }
 
+    public function testPurchaseRequestPassesThePreferredCountry()
+    {
+        $gateway = new Gateway();
+
+        $this->assertArrayNotHasKey('preferred_country', $gateway->purchase()->getData());
+
+        $requestData = $gateway->purchase()->setPreferredCountry('LT')->getData();
+
+        $this->assertSame('LT', $requestData['preferred_country']);
+    }
+
     public function testCompletePurchaseRequest()
     {
         $gateway = new Gateway();

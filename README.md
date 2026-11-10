@@ -50,7 +50,8 @@ $purchase = $gateway
     ->setTransactionId($orderId) // unique order id for this purchase
     ->setReturnUrl($customerUrl) // the url to redirect if the payment fails or gets cancelled
     ->setClientIp($_SERVER['REMOTE_ADDR']) // optional, helps fraud detection
-    ->setEmail(''); // optional, helps fraud detection
+    ->setEmail('') // optional, helps fraud detection
+    ->setPreferredCountry('LT'); // optional, EE/LV/LT: which country's banks the payment page shows first
 
 // Use this, if you want to make the payment using a previously stored card token
 // Only applicable for MIT and CIT payment types.
