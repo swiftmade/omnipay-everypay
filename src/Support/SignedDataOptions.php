@@ -1,6 +1,9 @@
 <?php
 namespace Omnipay\EveryPay\Support;
 
+/**
+ * @deprecated Only used by the v3 Gateway API. API v4 requests need no signature.
+ */
 class SignedDataOptions
 {
     /**

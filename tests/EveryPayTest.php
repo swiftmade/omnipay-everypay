@@ -44,7 +44,6 @@ class EveryPayTest extends GatewayTestCase
         $this->assertSame('2.2.2.2', $this->gateway->getMerchantIp());
     }
 
-
     public function testLocale()
     {
         // Default locale is English

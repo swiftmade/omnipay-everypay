@@ -23,17 +23,15 @@ class TokenizedCard extends CreditCard
             'master_card' => self::BRAND_MASTERCARD,
         ];
 
-        $brand = $brands[$payload['type']] ?? null;
-
-        $card = new TokenizedCard([
-            'brand' => $brand,
+        $card = new TokenizedCard(array_filter([
+            'brand' => $brands[$payload['type'] ?? ''] ?? null,
             'name' => $payload['holder_name'] ?? null,
             'number' => $payload['last_four_digits'] ?? null,
-            'expiryYear' => (int) $payload['year'],
-            'expiryMonth' => (int) $payload['month'],
-        ]);
+            'expiryYear' => isset($payload['year']) ? (int) $payload['year'] : null,
+            'expiryMonth' => isset($payload['month']) ? (int) $payload['month'] : null,
+        ], fn ($value) => $value !== null));
 
-        $card->setToken($payload['token']);
+        $card->setToken($payload['token'] ?? null);
 
         return $card;
     }

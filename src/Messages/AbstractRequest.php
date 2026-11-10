@@ -34,7 +34,7 @@ abstract class AbstractRequest extends BaseAbstractRequest
             /**
              * Unique string to prevent replay attacks
              */
-            'nonce' => uniqid(true),
+            'nonce' => bin2hex(random_bytes(16)),
 
             /**
              * The timestamp field represents the time of the request.
@@ -71,7 +71,7 @@ abstract class AbstractRequest extends BaseAbstractRequest
 
         $data = @json_decode($response->getBody()->getContents(), true);
 
-        if (!$data || !is_array($data)) {
+        if (! $data || ! is_array($data)) {
             throw new InvalidResponseException(
                 'Unrecognized error format.',
                 $response->getStatusCode()

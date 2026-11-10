@@ -34,7 +34,7 @@ $gateway = Omnipay::create('EveryPay')->initialize([
   'username' => '', // EveryPay api username
   'secret' => '', // EveryPay api secret
   'accountName' => '', // merchant account ID
-  'testMode' => true, // set to false for production!
+  'testMode' => true, // defaults to true! Set to false for production, or payments go to the demo environment.
   'locale' => 'en', // et=Estonian, see integration guide for more options.
 ]);
 ```
@@ -121,7 +121,7 @@ if (!$response->isSuccessful()) {
 // Payment succeeded!
 // Here's your payment reference number: $response->getTransactionReference()
 
-if ($card = $response->getCardToken()) {
+if ($card = $response->getTokenizedCard()) {
   // You also got back a card token
   // Store this somewhere safe for future use!
 }

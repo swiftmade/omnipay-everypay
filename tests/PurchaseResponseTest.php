@@ -2,9 +2,9 @@
 
 use Omnipay\EveryPay\Gateway;
 use PHPUnit\Framework\TestCase;
-use PHPUnit\Framework\Attributes\DataProvider;
 use Omnipay\EveryPay\Enums\PaymentState;
 use Omnipay\EveryPay\Common\TokenizedCard;
+use PHPUnit\Framework\Attributes\DataProvider;
 use Omnipay\EveryPay\Messages\PurchaseResponse;
 use Omnipay\EveryPay\Messages\OneOffPaymentRequest;
 
