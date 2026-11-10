@@ -2,7 +2,8 @@
 
 namespace Omnipay\EveryPay\Messages;
 
-use \Omnipay\Common\Exception\InvalidRequestException;
+use Omnipay\Common\Exception\InvalidRequestException;
+use Omnipay\Common\Exception\InvalidResponseException;
 
 class CompletePurchaseRequest extends AbstractRequest
 {
@@ -21,15 +22,24 @@ class CompletePurchaseRequest extends AbstractRequest
         $uri = sprintf(
             '%s/payments/%s?api_username=%s',
             $this->getEndpoint(),
-            $this->getTransactionReference(),
-            $this->getUsername()
+            rawurlencode($this->getTransactionReference()),
+            rawurlencode((string) $this->getUsername())
         );
 
-        $data = $this->httpRequest(
-            'GET',
-            $uri,
-            $this->getHeaders()
-        );
+        try {
+            $data = $this->httpRequest(
+                'GET',
+                $uri,
+                $this->getHeaders()
+            );
+        } catch (InvalidResponseException $e) {
+            $data = [
+                'error' => [
+                    'message' => $e->getMessage(),
+                    'code' => $e->getCode(),
+                ],
+            ];
+        }
 
         return $this->response = new PurchaseResponse($this, $data);
     }

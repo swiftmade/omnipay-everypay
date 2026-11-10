@@ -14,7 +14,7 @@ use Omnipay\Common\Exception\InvalidResponseException;
 class OneOffPaymentRequest extends AbstractRequest
 {
     /**
-     * Payload for the POSt /payments/oneoff request
+     * Payload for the POST /payments/oneoff request
      */
     public function getData(): array
     {

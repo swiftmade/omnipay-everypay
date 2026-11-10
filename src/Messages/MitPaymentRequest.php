@@ -13,7 +13,7 @@ use Omnipay\Common\Exception\InvalidResponseException;
 class MitPaymentRequest extends AbstractRequest
 {
     /**
-     * Payload for the POSt /payments/cit request
+     * Payload for the POST /payments/mit request
      */
     public function getData()
     {
@@ -66,6 +66,8 @@ class MitPaymentRequest extends AbstractRequest
 
     public function sendData($data): PurchaseResponse
     {
+        $payment = null;
+
         try {
             $payment = $this->httpRequest(
                 'POST',
@@ -97,12 +99,14 @@ class MitPaymentRequest extends AbstractRequest
         } catch (InvalidResponseException $e) {
             return $this->response = new PurchaseResponse(
                 $this,
-                [
+                array_filter([
                     'error' => [
                         'message' => $e->getMessage(),
                         'code' => $e->getCode(),
                     ],
-                ]
+                    'payment_reference' => $payment['payment_reference'] ?? null,
+                    'order_reference' => $payment['order_reference'] ?? null,
+                ])
             );
         }
     }

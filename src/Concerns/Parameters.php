@@ -119,7 +119,7 @@ trait Parameters
         } elseif (isset($_SERVER['SERVER_ADDR'])) {
             return $_SERVER['SERVER_ADDR'];
         } else {
-            throw new RuntimeException('Unable to determine merchant_ip.');
+            throw new RuntimeException('Unable to determine merchant_ip. Call setMerchantIp() with your server\'s public IP when running outside a web request (e.g. in a queue or CLI).');
         }
     }
 

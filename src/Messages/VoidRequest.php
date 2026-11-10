@@ -21,7 +21,7 @@ class VoidRequest extends AbstractRequest
             $data['reason'] = $reason;
         }
 
-        return $reason;
+        return $data;
     }
 
     public function sendData($data): VoidResponse

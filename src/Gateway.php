@@ -8,6 +8,7 @@ use Omnipay\EveryPay\Support\SignedData;
 use Omnipay\EveryPay\Messages\VoidRequest;
 use Omnipay\EveryPay\Messages\RefundRequest;
 use Omnipay\EveryPay\Messages\CaptureRequest;
+use Omnipay\EveryPay\Support\SignedDataOptions;
 use Omnipay\EveryPay\Messages\CitPaymentRequest;
 use Omnipay\EveryPay\Messages\MitPaymentRequest;
 use Omnipay\EveryPay\Messages\OneOffPaymentRequest;
@@ -22,9 +23,13 @@ class Gateway extends AbstractGateway
         return 'Every Pay';
     }
 
+    /**
+     * @deprecated Signing was used by the v3 Gateway API. API v4 requests are
+     *             authenticated with Basic auth and need no signature.
+     */
     public function signData(array $data)
     {
-        return SignedData::make($data, $this->getSecret());
+        return SignedData::make($data, SignedDataOptions::gateway($this->getSecret()));
     }
 
     public function purchase(array $options = [])

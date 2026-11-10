@@ -42,7 +42,8 @@ class PurchaseResponse extends AbstractResponse implements RedirectResponseInter
             return;
         }
 
-        if ($this->getTransactionId() !== $this->request->getTransactionId()) {
+        if ($this->request->getTransactionId() !== null
+            && $this->getTransactionId() !== $this->request->getTransactionId()) {
             $this->fail(sprintf(
                 'Transaction ID (order_reference) mismatch. Request: %s, Response: %s',
                 $this->request->getTransactionId(),
@@ -52,7 +53,7 @@ class PurchaseResponse extends AbstractResponse implements RedirectResponseInter
             return;
         }
 
-        $this->message = 'Payment state - ' . $this->data['payment_state'];
+        $this->message = 'Payment state - ' . ($this->data['payment_state'] ?? 'unknown');
     }
 
     protected function fail($message, $code = null)
