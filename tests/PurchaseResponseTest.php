@@ -2,6 +2,7 @@
 
 use Omnipay\EveryPay\Gateway;
 use PHPUnit\Framework\TestCase;
+use PHPUnit\Framework\Attributes\DataProvider;
 use Omnipay\EveryPay\Enums\PaymentState;
 use Omnipay\EveryPay\Common\TokenizedCard;
 use Omnipay\EveryPay\Messages\PurchaseResponse;
@@ -107,9 +108,7 @@ class PurchaseResponseTest extends TestCase
         $this->assertTrue($response->isRedirect());
     }
 
-    /**
-     * @dataProvider successfulPaymentStates
-     */
+    #[DataProvider('successfulPaymentStates')]
     public function testSuccessful($state)
     {
         $gateway = new Gateway();
@@ -132,7 +131,7 @@ class PurchaseResponseTest extends TestCase
         $this->assertTrue($response->isSuccessful());
     }
 
-    public function successfulPaymentStates(): array
+    public static function successfulPaymentStates(): array
     {
         return [
             [PaymentState::SETTLED],

@@ -128,6 +128,23 @@ trait Parameters
         return $this->setParameter('merchant_ip', $ip);
     }
 
+    public function getPreferredCountry()
+    {
+        return $this->getParameter('preferredCountry');
+    }
+
+    /**
+     * Country whose bank payment methods are pre-selected and listed first
+     * on the payment page: EE, LV or LT.
+     *
+     * @param $country
+     * @return \Omnipay\EveryPay\Gateway|\Omnipay\EveryPay\Messages\AbstractRequest
+     */
+    public function setPreferredCountry($country)
+    {
+        return $this->setParameter('preferredCountry', $country);
+    }
+
     public function getSaveCard()
     {
         return $this->getParameter('saveCard');

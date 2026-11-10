@@ -42,6 +42,10 @@ class OneOffPaymentRequest extends AbstractRequest
             $data['email'] = $this->getEmail();
         }
 
+        if ($this->getPreferredCountry()) {
+            $data['preferred_country'] = $this->getPreferredCountry();
+        }
+
         if ($this->getClientIp()) {
             $data['customer_ip'] = $this->getClientIp();
         }
